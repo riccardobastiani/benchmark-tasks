@@ -1,0 +1,6 @@
+{
+  "kind": "slot_car_interception",
+  "instruction": "Use the left gripper to collect the moving yellow car and the right gripper to collect the moving blue car. Lift each car clear while it is still moving forward and place it on its matching pad. Keep the red car running without touching it. Finish with both hands clear of the track.",
+  "max_steps": 1200,
+  "control_hz": 20
+}

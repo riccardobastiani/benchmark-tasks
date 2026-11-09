@@ -1,0 +1,43 @@
+{
+  "source_pr": "https://github.com/robocurve/benchmark-tasks/pull/824",
+  "source_repository": "spindro/benchmark-tasks",
+  "source_commit": "62866a07f28c58ce285cbeb77df2d67b1c6b291d",
+  "source_task": "tasks/slot-car-recovery",
+  "adaptation": "Native moving-car interception verified: yellow/left and blue/right, physical moving guide extraction and released pad placement; red remains circulating.",
+  "dream_run": "completed",
+  "native_validation": {
+    "score": 1.0,
+    "condition": "recoverable",
+    "controls": 373,
+    "recorded_source_fingerprint": "b2a851afc90a0fc6879bbe21090d80d970ce38b1bb5f8fe31bd4092d35867f8b",
+    "extractions": {
+      "yellow": {
+        "time_s": 6.129166986327618,
+        "speed_m_s": 0.38269591331481934
+      },
+      "blue": {
+        "time_s": 11.254167253617197,
+        "speed_m_s": 0.22304806113243103
+      }
+    },
+    "camera_resolution": [
+      1920,
+      1080
+    ],
+    "frames_per_camera": 374,
+    "source_snapshot": "slot-car-interception-final-1080p/source"
+  },
+  "dream_validation": {
+    "model": "dreamlabs/dream-1-beta",
+    "score": 0.0,
+    "controls": 1200,
+    "seed": 0,
+    "recorded_source_fingerprint": "fa1b527cb8dae1fe85ba1f772474a436681d167f5c930fd93e5545abd6e397a0",
+    "api_requests": 25,
+    "api_attempts": 49,
+    "distinct_session_ids": 25,
+    "session_renewals": 24,
+    "clean_performance_baseline": false,
+    "source_snapshot": "slot-car-interception-dream1-run-01/source"
+  }
+}

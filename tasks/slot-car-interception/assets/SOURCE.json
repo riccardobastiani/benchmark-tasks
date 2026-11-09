@@ -1,0 +1,45 @@
+{
+  "source": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/8f492390ddc7a2ae221a1369ef560589cf8c70fb/Models/ToyCar",
+  "license": "CC0-1.0",
+  "authors": [
+    "Guido Odendahl",
+    "Eric Chadwick"
+  ],
+  "source_sha256": "01a60862de55cd4b9f3acfab0b0def86451800f9c42467fcd61052c16cb9838c",
+  "scope": "Retained appearance mesh, not a scan or calibrated commercial slot car. Authored physical chassis/guide/wheel collision approximations.",
+  "conversion": "Uniform scale; source y,x,-z to local x,y,z; wheel-axis height origin; original disconnected wheel components separated. Main painted shell separated for red/yellow/blue USD materials without editing the texture. Cloth, glass overlay and source cameras omitted. Other base colors retained; advanced material extensions omitted.",
+  "source_unit_scale_m": 0.00028,
+  "wheel_centers_m": [
+    [
+      0.0373996,
+      -0.0205968,
+      0.0
+    ],
+    [
+      0.0373996,
+      0.0206808,
+      0.0
+    ],
+    [
+      -0.029679999999999998,
+      -0.020344799999999996,
+      0.0
+    ],
+    [
+      -0.029679999999999998,
+      0.020255199999999998,
+      0.0
+    ]
+  ],
+  "wheel_radius_m": 0.007358399999999999,
+  "output_sha256": {
+    "body.obj": "e4595218c3a1b398b05d4a84490152a71952c292fbb1dbbed88729d33a6475ce",
+    "car.mtl": "5da53e59286b5cc8c35ffd46427415b8b1a04e3400df533a3e79df9adc73a153",
+    "car.png": "7d51b5df33344f00dbc248f9a6043a7eaa6864b9f7ece1fb90f884a425423ed7",
+    "paint.obj": "d747381986441acc00aeae1ec46e74675c5a5931336a88df2847b9c5d54e4392",
+    "wheel0.obj": "7935e553282594e5b4ccda35bb72c9e6580d4ab1add47b401046c2262fff57c9",
+    "wheel1.obj": "a0e4e56da87027d5156e68406e96173640ab90b418e4a5d79d484694dede325c",
+    "wheel2.obj": "b68e53924343069c15f69423774b227a8b92bfea3ff23d759a052b74cf8e8cd2",
+    "wheel3.obj": "68e233b7011013d7180bd15f152244840169ca0846a02659efb7dd027e3644f3"
+  }
+}
