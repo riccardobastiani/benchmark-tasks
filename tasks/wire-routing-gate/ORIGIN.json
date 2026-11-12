@@ -1,0 +1,32 @@
+{
+  "source": "RESIST wire-routing-gate careful-motion revision",
+  "native_demo": "wire-gate-careful-final-1080p",
+  "native_demo_score": 1.0,
+  "instruction": "Use both grippers to route the orange wire between the two metal posts and seat it in the blue clip. Keep it retained in the green clip throughout. Finish with the connected wire span passing through the marked gap below the post tops, both clips seated, and both hands released and clear.",
+  "original_source_sha256": {
+    "pyproject.toml": "608599d095d7c2d03c4a530055b07bbc78a754687b6710d9e7c3b59051aad395",
+    "tools/run_recovery_pilot.py": "5fa2641f112ee5f5935724914c7006c997ae8c4acb3fd4d84c532816a13fa8be",
+    "resist_isaac/__init__.py": "ed18fdcd2a9d169b9c4a2739ba20805f3a2838cd222fc22c0d61c7bb63ef2e84",
+    "resist_isaac/recovery.py": "3aa5733f3020b803d2c96dd863fc0c67bff4991545fcc4bae913a5d283bd461d",
+    "resist_isaac/runtime.py": "01108d8da77eeef9be3ce7edf71e91554c7b6d0f1f4d088b771c256980dec468",
+    "resist_isaac/state.py": "9ebf40d1469ca02ff354400dacebe6b20d17d4ff411605bac479c677c65bd384",
+    "resist_isaac/usd_assets.py": "04be67294fcdf89c9571f878d697544486c58d11716bc8cfe6eba42240614834",
+    ".gitignore": "9c63842edb7bed8a45ddddbf916a02bb4e637cc2ab508b1d36def426eddaa9c9",
+    "LICENSE": "c4155ae5e99236f704ed0e168e6c0ca0b09156546ef173ec3cea718c49da1d2d",
+    "README.md": "3ebe1f4b8ade2ee6ee42d20a497b4fc60c64894dc7c628a44d60464eded61048",
+    "build_scene.py": "f8b0d26fa8e823bccd3695bada903c095811bd9492f6db917e52bbb0021ff597",
+    "final.png": "1609d8deb60a059114ec8e6f1383cb88ae6e4d5b2dd622dc7dc28cf03d633d6f",
+    "geometry.py": "621643364b5ed27164a73216b905af9be2e7ac9f25bdf8eff21f370e8de0afd8",
+    "interaction.py": "5cf4dfa8e908df249882fe7340a2c759aa2a4b501a23bdd0ccf7fec86a0c0053",
+    "pilot.json": "9b28b1e36592a1a3d3c9073d0eb989a46d9789ca1f2333e75401398fc27ad046",
+    "probe_clip.py": "bd0fc853242758f9e1efe77087c8d9769bdce979d91865702f1a2062b4108bc2",
+    "rules.py": "2a4219b80dccb745ae7fbe2aa6e9f14c938e7474ea634ab195832312e4358631",
+    "setup.png": "14f36573bc3ecbd5677b4c0f13f69f2076571ecdddb7b60874ae09ebc3c9e9ad",
+    "task.json": "84c6c0c96d880ada203b501dee008c6f6ac633e975956b0e204194ce4165d54c",
+    "task.py": "b2e251abba88fb53465cd90288b978a9ae1470078fe52176b2979fbb59322bdf",
+    "test_geometry.py": "7e15dbd72c9117b71799375d3b073610cce78b1a375c8ba60ae5cb5193a58340",
+    "test_rules.py": "c33683b13720d674c82c208742a78c6d5bf666b06d4fa6d0b3e6d6e50cde5722"
+  },
+  "runner_change": "Hosted Dream policy is initialized after native reset, avoiding idle expiry during simulator startup. Added exact prompt and registered-budget checks. Scripted controller, geometry, mechanism and evaluator unchanged.",
+  "packaging_change": "Explicitly pin the previously tested Inspect Robots 0.60.0 dependency."
+}

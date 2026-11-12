@@ -1,0 +1,6 @@
+{
+  "kind": "wire_routing_gate",
+  "instruction": "Use both grippers to route the orange wire between the two metal posts and seat it in the blue clip. Keep it retained in the green clip throughout. Finish with the connected wire span passing through the marked gap below the post tops, both clips seated, and both hands released and clear.",
+  "max_steps": 1200,
+  "control_hz": 20
+}
