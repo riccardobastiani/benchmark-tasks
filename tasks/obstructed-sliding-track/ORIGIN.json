@@ -1,0 +1,19 @@
+{
+  "source": "RESIST native obstructed-sliding-track",
+  "original_instruction": "Slide the front glass door open. Keep the loose key on the bench or in a gripper.",
+  "instruction": "Slide the front glass door fully open. Keep the loose key within x=0.05-0.75 m, y=-0.50-0.50 m and z=0.745-1.30 m in the station frame (x forward, y left; z from the floor).",
+  "clarification": "The existing scorer retains the key inside a specified work-area volume, including cabinet surfaces. These numeric bounds are now explicit in the instruction. The mechanism and evaluator are unchanged.",
+  "unchanged_mechanism_ast": true,
+  "original_source_sha256": {
+    "task.py": "bbdc7c32535738aac557d3ed9bbd7d2c298b7024d2005a6c6f1864659afb322d",
+    "build_scene.py": "a2cb81859dd7030d0a650bf1bc6be98c44076f76522de6ebc8ff88e47c77530b",
+    "geometry.json": "b4e320167e6a8680af91e4e855aa186925b6fb292c5baf8d5899268f0590fb42"
+  },
+  "copied_runtime_sha256": {
+    "__init__.py": "ed18fdcd2a9d169b9c4a2739ba20805f3a2838cd222fc22c0d61c7bb63ef2e84",
+    "runtime.py": "817636e29dafcfe3a0a0ec5975a3e2ba4a03d5e10b0850070b70e4ecd7a013f2",
+    "state.py": "9ebf40d1469ca02ff354400dacebe6b20d17d4ff411605bac479c677c65bd384",
+    "scripted.py": "7d87b633e584cb3524ee93eae46f058f1cde9bb7998ef257cc1ffa139b68f44b"
+  },
+  "recorded_environment_revision": "6db8ffb80e1c"
+}

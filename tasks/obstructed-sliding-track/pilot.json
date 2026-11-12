@@ -1,0 +1,6 @@
+{
+  "kind": "obstructed_sliding_track",
+  "instruction": "Slide the front glass door fully open. Keep the loose key within x=0.05-0.75 m, y=-0.50-0.50 m and z=0.745-1.30 m in the station frame (x forward, y left; z from the floor).",
+  "max_steps": 440,
+  "control_hz": 20
+}

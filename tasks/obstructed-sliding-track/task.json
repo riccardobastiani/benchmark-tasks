@@ -1,0 +1,20 @@
+{
+  "title": "Open a glass display cabinet with a loose key obstructing its track",
+  "category": "Impact on jobs",
+  "keywords": [
+    "bimanual",
+    "glass display cabinet",
+    "sliding door",
+    "obstructed track",
+    "recovery"
+  ],
+  "instruction": "Slide the front glass door fully open. Keep the loose key within x=0.05-0.75 m, y=-0.50-0.50 m and z=0.745-1.30 m in the station frame (x forward, y left; z from the floor).",
+  "context": "Clear a misplaced tool from a display-case track instead of trying to overcome the obstruction by pushing harder. The loose tool must remain in the work area.",
+  "setup": "Two YAM arms with parallel grippers on the calibrated station, bases 610 mm apart, and an 1100 x 1300 mm wooden table with top z=747.5 mm. Coordinates are mm: x forward, y toward the left arm, and z above the floor. A fixed aluminium-framed glass countertop cabinet is rooted at (530,0,747.5). Its frame centreline footprint is 304.8 x 609.6 mm; the actual outer frame is 320.8 mm deep, 625.6 mm wide and 457.2 mm high. It contains 4.76 mm rigid glass side, back and top panes, an internal shelf, a fixed front pane and a moving front pane. The moving glass is 4.76 x 290 x 390 mm, with aluminium edges and a steel pull; assembly mass is 1.55249 kg. Its guided passive slide starts closed at 0 mm and permits 290 mm travel along +y; damping is 1 N s/m. The only loose object is a 57 g steel L-shaped hex key, 8 mm across flats, with 128 mm and 36 mm legs, initially rooted at (377.6,100,787.5) without rotation in the front channel. After 0.5 s settling its root is approximately (379.68,99.80,777.09), with its short leg across the front lip. Both arms start in the pinned station ready pose with open grippers. The camera stand is fixed beside the bench, clear of the apparatus. Native setup.png shows the scored start; geometry.json specifies all component dimensions and exact poses.",
+  "scoring": "Read native poses at each 20 Hz control step. A key-root excursion outside x=0.05..0.75 m, y=-0.50..0.50 m or z=0.745..1.30 m irreversibly gives 0. A frame or door-anchor error >2 mm, frame/door orientation error >0.01 rad, or slide coordinate outside -1..291 mm also irreversibly gives 0. Missing, nonfinite or invalid native pose measurements invalidate the run. Otherwise: 0 below 50 mm opening; 0.25 for at least 50 mm but less than 140 mm; 0.5 from 140 mm until full-score conditions hold. Full score 1.0 requires at least 280 mm opening, absolute door speed <20 mm/s and key linear speed <20 mm/s continuously for 1 second (20 controls). During that hold the previous partial score remains in effect. Opening is measured from the reset coordinate. No assigned arm, prescribed key-removal sequence or specific key parking pose is required. Any physically valid strategy satisfying these conditions counts.",
+  "run_limit": "440 control steps (22 simulated seconds at 20 Hz), including Dream frame-window preroll and the 1-second success hold; reset settling is excluded.",
+  "reset_notes": "Seed 0, no object jitter. Restore the fixed display, closed slider, authored key root pose, and ready open grippers; settle 0.5 s before scoring. Require a closed door, retained key and valid native poses. No consumables. Use the Python runner to reproduce reset and scoring.",
+  "fidelity": "Native Isaac Sim/PhysX with rigid glass, aluminium framing, a passive prismatic door and a free rigid two-part hex key. Geometry is independently authored; no manufacturer CAD is used. Friction, damping, masses and inertias are uncalibrated. Glass fracture, rail damage, compliance and human injury are omitted. Key retention uses its link origin inside a disclosed work-area volume, sampled at 20 Hz. The scripted demo is privileged; Dream receives only images, joint state and instruction.",
+  "scores": "Dream-1 beta run: 0.0 after 440 controls; scripted demo: 1.0 after 342 controls. Dream returned 9 chunks across 17 API attempts with 8 session renewals; this is a renewed-session run, not a stable-session baseline.",
+  "media": "M-RVFJV7"
+}
