@@ -2,6 +2,22 @@
 import numpy as np
 
 
+class GripperParticipation:
+    """Count each arm's fingertip contact independently over the scored trial."""
+    def __init__(self):
+        self.contact_s = {'left': 0., 'right': 0.}
+
+    def record(self, contacts, dt):
+        if not np.isfinite(dt) or dt <= 0:
+            raise ValueError('Contact duration must be finite and positive')
+        for side in self.contact_s:
+            if contacts[side]: self.contact_s[side] += float(dt)
+
+    @property
+    def complete(self):
+        return all(seconds >= .2-1e-9 for seconds in self.contact_s.values())
+
+
 def crossings(state, axis, value):
     result = []
     segments = [(index,a,b) for index,(_,_,a,b) in enumerate(state)]
@@ -68,7 +84,7 @@ def gate_route(state, upstream, target, gate_x, low, high, board_z, radius, heig
     return bool(routed),hits
 
 
-def score(unsafe, routed, seated, released, coordinated):
+def score(unsafe, routed, seated, released, participated):
     if unsafe: return 0.
-    if routed and seated and released and coordinated: return 1.
+    if routed and seated and released and participated: return 1.
     return .5 if routed else 0.

@@ -8,7 +8,7 @@ from resist_isaac.state import pose_state, reset_joints
 from resist_isaac.usd_assets import create_asset
 from .geometry import (geometry, wire_nodes, UPSTREAM, TARGET, WIRE_RADIUS, PLATE_Z,
                        GATE_X, GATE_LOW, GATE_HIGH, GATE_WIRE_HEIGHT)
-from .rules import crossings, clip_state, gate_route, score
+from .rules import crossings, clip_state, gate_route, score, GripperParticipation
 
 CONDITIONS = ('recoverable',)
 FOLDER = Path(__file__).parent
@@ -27,8 +27,7 @@ class WireRoutingGate:
         self._unsafe = False
         self._error = None
         self._failure_reason = ''
-        self._coordinated = False
-        self._both_contact_time = 0.
+        self.participation = GripperParticipation()
         self._subscription = None
         self._native_views = {}
         self.contacts = {'left': set(), 'right': set()}
@@ -116,7 +115,7 @@ class WireRoutingGate:
             reset_joints(base, side+'_robot', dict(zip(ARM_JOINTS, action[start:start+6])))
             reset_joints(base, side+'_robot', dict.fromkeys(FINGER_JOINTS, FINGER_OPEN))
         self._warming_up = True; self._unsafe = False; self._error = None
-        self._failure_reason = ''; self._both_contact_time = 0.; self._coordinated = False
+        self._failure_reason = ''; self.participation = GripperParticipation()
         self._motion_substeps = {'arms': 0, 'posts': 0}
         self._motion_contacts = []
         self._native_views = {part['name']:base.scene['wire_'+part['name']].root_physx_view
@@ -171,17 +170,16 @@ class WireRoutingGate:
                     self._unsafe = True; self._failure_reason = 'upstream_wire_released'
                 if max(np.linalg.norm(a[3]-b[2]) for a,b in zip(state,state[1:]))>.003:
                     self._unsafe = True; self._failure_reason = 'wire_joint_separated'
-                over_clip = any(abs(p[0]-TARGET[0])<.015 and TARGET[2]<p[2]<TARGET[2]+.08
-                                for _,p in crossings(state,1,TARGET[1]))
-                both = bool(contacts['left'] and contacts['right'] and over_clip)
-                self._both_contact_time = self._both_contact_time+dt if both else 0.
-                if self._both_contact_time>=.2: self._coordinated = True
+                self.participation.record(contacts, dt)
             if hasattr(self, '_events'):
                 self._events.write(json.dumps(dict(warmup=self._warming_up, unsafe=self._unsafe,
                     failure_reason=self._failure_reason,
                     motion_contacts=motion_contacts,
                     upstream_crossings=[(i,p.tolist()) for i,p in crossings(state,1,UPSTREAM[1])],
                     contacts={s:sorted(v) for s,v in contacts.items()},
+                    contact_time_s=self.participation.contact_s.copy(),
+                    both_arms_used=self.participation.complete,
+                    any_robot_contact=any_contact,
                     wire=[p.tolist() for p,_,_,_ in state]))+'\n')
         except Exception as error:
             self._error = repr(error)
@@ -222,13 +220,16 @@ class WireRoutingGate:
                     for s in ('left','right'))
         speed = max(np.linalg.norm(v[:3]) for _,v,_,_ in state)
         released = clear and not getattr(self,'_any_robot_contact',True) and speed<.03
-        value = score(self._unsafe,routed and aligned and self._coordinated,
-                      upstream_seated and target_seated,released,self._coordinated)
+        value = score(self._unsafe,routed and aligned,
+                      upstream_seated and target_seated,released,self.participation.complete)
         return dict(success=value==1., score=value, upstream_retained=upstream_retained,
             arm_contact_substeps=self._motion_substeps['arms'],
             post_contact_substeps=self._motion_substeps['posts'],
             upstream_seated=upstream_seated, target_occupied=target_seated, routed=routed,
-            coordinated_grasp=self._coordinated, hands_clear=clear, gate_crossing_count=len(gate_hits),
+            both_arms_used=self.participation.complete,
+            left_contact_time_s=self.participation.contact_s['left'],
+            right_contact_time_s=self.participation.contact_s['right'],
+            hands_clear=clear, gate_crossing_count=len(gate_hits),
             gate_crossing_max_height_m=float(max((p[2]-PLATE_Z for p in gate_hits),default=0.)),
             gate_crossing_min_y_m=float(min((p[1] for p in gate_hits),default=0.)),
             gate_crossing_max_y_m=float(max((p[1] for p in gate_hits),default=0.)),

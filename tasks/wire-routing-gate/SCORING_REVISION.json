@@ -1,0 +1,85 @@
+{
+  "revision": "Independent cumulative fingertip contact, >=0.2 s per arm anywhere in the scored trial; sequential handling allowed. Correct aligned routing earns 0.5 without participation.",
+  "review_reference": "https://github.com/robocurve/benchmark-tasks/pull/1797#issuecomment-6830996041",
+  "media": "M-6GRHYN",
+  "recordings": {
+    "demo": {
+      "scope": "Offline rescoring of recorded native evidence; no new physics or inference",
+      "recording": "wire-gate-careful-final-1080p",
+      "steps": 1184,
+      "scored_substeps": 14208,
+      "original_score": 1.0,
+      "revised_score": 1.0,
+      "contact_time_s": {
+        "left": 31.987499999998505,
+        "right": 41.37916666667263
+      },
+      "both_arms_used": true,
+      "unsafe_event": false,
+      "routed": true,
+      "both_clips_seated": true,
+      "release_witness": "Legacy success held for final 40 controls",
+      "original_receipt_sha256": "88c51511dc57669cf7628a6ab4a745a02b1863c854b136e0e79733ec846d7a46",
+      "native_events_sha256": "813f9e07c0cee50a263c0e2b9ae50b12c5a422583c1ed2688f7b0939b00e27e3",
+      "trace_sha256": "3dbc564b0d19c3d3128d06d811c04df8c62f589513d64fff669e21cb944e9837",
+      "top_video_sha256": "20f64fd655b30ce3a3626a1154651684c27b9c793b7450f82026e5d289ce38d2",
+      "current_scorer_sha256": {
+        "rules.py": "0e51f9491ef9373d94497b7e2046051d84db91662f108b33974badaca601973c",
+        "task.py": "727084d3b3304b3afd8c74ce88a40695f6f28f1d1aca91768a3436ca6e802645"
+      }
+    },
+    "dream": {
+      "scope": "Offline rescoring of recorded native evidence; no new physics or inference",
+      "recording": "wire-gate-submission-dream1-1080p-03",
+      "steps": 1200,
+      "scored_substeps": 14400,
+      "original_score": 0.0,
+      "revised_score": 0.0,
+      "contact_time_s": {
+        "left": 0.0,
+        "right": 0.0
+      },
+      "both_arms_used": false,
+      "unsafe_event": false,
+      "routed": false,
+      "both_clips_seated": false,
+      "release_witness": "Not required for this outcome",
+      "original_receipt_sha256": "184648a5e46ea18abf4b97dd19a3dbdcc44e31cd93d3021cb61cb285d38bcd1d",
+      "native_events_sha256": "c685fa4ed73e212bbe2e2384fa9ffa0f97c6660fb7852b64b89fe1771d094c1a",
+      "trace_sha256": "8926507d797576406dc420a2088c92f661e8ecb9b67d5c957d78a04ac4f21937",
+      "top_video_sha256": "5850dabdf37f54c6203e076e7d49b91119b92ed3c628bf3d069be80498efb218",
+      "current_scorer_sha256": {
+        "rules.py": "0e51f9491ef9373d94497b7e2046051d84db91662f108b33974badaca601973c",
+        "task.py": "727084d3b3304b3afd8c74ce88a40695f6f28f1d1aca91768a3436ca6e802645"
+      }
+    }
+  },
+  "native_validation": {
+    "recording": "wire-gate-scoring-v2-native-01",
+    "scope": "Fresh native Isaac Sim/PhysX validation, 320 x 180 cameras; not replacement submission media",
+    "score": 1.0,
+    "steps": 1184,
+    "simulated_seconds": 59.2,
+    "elapsed_wall_s": 343.9559420130681,
+    "source_unchanged": true,
+    "scored_substeps": 14208,
+    "warmup_substeps": 120,
+    "unsafe_substeps": 0,
+    "arm_contact_substeps": 0,
+    "post_contact_substeps": 0,
+    "contact_time_s": {
+      "left": 31.987501668278128,
+      "right": 41.37916882475838
+    },
+    "first_participation_control": 348,
+    "first_routing_control": 781,
+    "first_success_control": 1063,
+    "native_receipt_sha256": "2be54cfcf60324b6180e545e81949688b87cf8063c428756f7876cd81f077e4f",
+    "native_events_sha256": "66bd31a67490259e719aa9cc0d56df66dd1bc31120e5336212bcfd5554ba31d9",
+    "trace_sha256": "7469192f1ad7c5386a2dad4bd13024c3ab9659098a0139d83e64f3e357b65d3b",
+    "scorer_sha256": {
+      "rules.py": "0e51f9491ef9373d94497b7e2046051d84db91662f108b33974badaca601973c",
+      "task.py": "727084d3b3304b3afd8c74ce88a40695f6f28f1d1aca91768a3436ca6e802645"
+    }
+  }
+}

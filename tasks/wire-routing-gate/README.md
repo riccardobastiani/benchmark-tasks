@@ -14,15 +14,15 @@ This represents maintaining an existing cable fixing while installing the next f
 
 ## Scoring
 
-The native scorer and geometric predicates are in `task.py` and `rules.py`. Their implementation is unchanged from the recorded careful feasibility demo.
+The native scorer and geometric predicates are in `task.py` and `rules.py`. The revised participation rule accepts sequential handling and contact anywhere on the wire; no simultaneous-contact or over-clip contact requirement remains.
 
 - Any upstream release or wire-joint separation over 3 mm permanently gives zero. Native retention is checked at every 240 Hz physics substep. Missing or invalid native measurements invalidate the run.
-- Partial credit **0.5** requires correct connected-span routing, blue-clip alignment and simultaneous fingertip contact by both arms for at least 0.2 seconds while the wire is over the blue clip.
-- Full credit **1.0** additionally requires both clips seated, no robot/wire contact, both TCPs more than 70 mm from every wire-link centre and every link moving below 30 mm/s. Hold the complete conditions for 40 controls / 2 seconds.
+- Partial credit **0.5** requires correct connected-span routing and blue-clip alignment, independently of gripper participation.
+- Full credit **1.0** additionally requires each arm to have accumulated at least **0.2 seconds of fingertip/wire contact** during the scored trial. Each arm's time is counted independently at 240 Hz, on any wire link and at any location; contact intervals may be interrupted and the arms may handle the wire sequentially. Reset/warmup contact does not count. Both clips must be seated, with no robot/wire contact, both TCPs more than 70 mm from every wire-link centre and every link moving below 30 mm/s. Hold the complete conditions for 40 controls / 2 seconds.
 
 Routing considers only the ordered material span from the first seated green crossing to the following aligned/seated blue crossing. At least one crossing of x=320 mm is required; every crossing must have its centreline at y=14..86 mm and height 3..51 mm above the plate. Passing above a post earlier is allowed; the endpoint route counts. A clip is seated when its mid-plane crossing has x offset below 2 mm and height 4..12 mm above its base. Full blue-alignment, upstream-capture and participation bounds are stated in `task.json`.
 
-The runtime holds the latest partial score while accumulating full-score hold time. Two-arm participation is explicitly scored; the task does not claim that every one-arm strategy is physically impossible. Inter-arm and robot/post touches are recorded at every physics substep as additional diagnostics. They are not extra zero-score conditions. The careful scripted controller aborts on either diagnostic touch.
+The runtime holds the latest partial score while accumulating full-score hold time. A correct route handled by only one arm earns 0.5 rather than zero. Two-arm participation is explicitly required for full credit; the task does not claim that every one-arm strategy is physically impossible. Per-arm accumulated contact seconds and completion are exposed in native metrics and substep evidence. Inter-arm and robot/post touches are recorded at every physics substep as additional diagnostics. They are not extra zero-score conditions. The careful scripted controller aborts on either diagnostic touch.
 
 ## Run and record
 
@@ -62,13 +62,13 @@ Outputs include H.264/yuv420p top and close MP4s, setup/final PNGs, native gener
 
 ## Recorded feasibility and limitations
 
-The approved careful demo (`wire-gate-careful-final-1080p`) completed with **score 1.0**, 1,184 controls / 59.2 simulated seconds, first full score at control 1,063. Both clips remained seated after release and withdrawal. The connected span crossed the gate once at y=47.59 mm, centreline height 4.00 mm above the plate, and the final wire was stationary. All **14,208** scored physics substeps had **zero inter-arm touches, zero robot/post touches and zero unsafe wire events**. Recorded sources were unchanged.
+The recorded careful demo (`wire-gate-careful-final-1080p`) completed with **score 1.0**, 1,184 controls / 59.2 simulated seconds, first full score at control 1,063. Both clips remained seated after release and withdrawal. The connected span crossed the gate once at y=47.59 mm, centreline height 4.00 mm above the plate, and the final wire was stationary. All **14,208** scored physics substeps had **zero inter-arm touches, zero robot/post touches and zero unsafe wire events**. Recorded sources were unchanged.
 
 Native execution and both 1080p recordings took **665.13 seconds / 11.09 minutes**. Each video has 1,185 frames at 20 fps / 59.25 seconds, including the starting observation. The top video is 11.85 MB and the close video 14.27 MB. Both are H.264/avc1, yuv420p, fast-start MP4 and passed full-stream decoding.
 
 The unchanged contact observer was also qualified by a separate native deliberate-contact diagnostic: it detected 478 post-contact substeps and 836 inter-arm-contact substeps. The included geometry/rules checks cover wrong-side and over-post routing, extra bights, unrelated free tails and clip seams. Those geometric checks complement native execution; they do not establish broad physical reliability.
 
-The careful demo's geometry, task, rules, interaction and runtime source hashes are recorded in `ORIGIN.json`. The submission runner adds exact instruction/budget checks and initializes hosted sessions after native reset; the scripted control path and physics are unchanged. The explicit Inspect Robots dependency pin matches the previously executed version.
+The careful demo's original geometry, task, rules, interaction and runtime source hashes are recorded in `ORIGIN.json`. The scoring revision changes only participation accounting and its score gate; geometry, scripted control, retention failures and runtime are unchanged. The submission runner adds exact instruction/budget checks and initializes hosted sessions after native reset. The explicit Inspect Robots dependency pin matches the previously executed version.
 
 ![Completed route](final.png)
 
@@ -78,10 +78,27 @@ The hosted `dreamlabs/dream-1-beta` run (`wire-gate-submission-dream1-1080p-03`)
 
 Dream returned **25 chunks over 49 API attempts with 24 session renewals**. The first 32 controls populated the observation window; 1168 controls used returned model rows. SDK expiry retries retained the client observation window. This is a completed renewed-session evaluation, not an uninterrupted-session baseline. No expert refinement or privileged object-state input was supplied to the model.
 
-The native starting object states match the approved careful demo to a maximum absolute difference of **0**. The initial top screenshot also matches its recorded image byte for byte. The exact instruction, task geometry, interaction controller, mechanism, scorer and runtime match the careful demo. Only the runner's hosted-session initialization/evidence checks and the explicit dependency pin changed. Executed sources were unchanged during the model run; measured result text was added afterward.
+The native starting object states match the recorded careful demo to a maximum absolute difference of **0**. The initial top screenshot also matches its recorded image byte for byte. The original recorded runs used matching instructions, task geometry, interaction controller, mechanism, scorer and runtime. The current participation rule is a subsequent scoring revision; recorded source snapshots remain historical evidence. Executed sources were unchanged during the model run; measured result text was added afterward.
 
 Both model recordings passed full-stream decoding, fast-start and format/size checks. Top: **60.05 seconds, 12.55 MB**. Close: **60.05 seconds, 9.40 MB**. Both are native 1920 x 1080, H.264/avc1, yuv420p at 20 fps. The setup PNG comes from this run's scored reset and is below 10 MB.
 
-Two initial hosted attempts encountered unusably noisy native rendering and were stopped as diagnostics. Separate camera previews were used to verify clean recording. They are excluded from submitted model results. The completed run used a direct native launch with the original approved runtime; experimental renderer overrides were removed.
+Two initial hosted attempts encountered unusably noisy native rendering and were stopped as diagnostics. Separate camera previews were used to verify clean recording. They are excluded from submitted model results. The completed run used a direct native launch with the original runtime; experimental renderer overrides were removed.
 
 The numeric outcome and model failure/success apply to fixed seed 0; they are not a robustness estimate. The official upload script uploaded the Dream top video, careful scripted top demo and scored setup screenshot as **M-6GRHYN**, recorded in `task.json.media`. The close recordings are additional local review material. Run `python test_contract.py --ready` to check the submission metadata. Eligibility and acceptance remain for the reviewers to determine.
+
+
+## Independent arm participation revision
+
+The review identified an irrelevant simultaneous-contact-at-the-clip condition. It has been removed. Each arm now accumulates its own fingertip/wire contact duration anywhere in the scored trial; 0.2 seconds per arm qualifies for full credit, including sequential or interrupted handling. Correct aligned routing earns 0.5 even without participation. The retention failures, connected-span route, clip seating, release/clearance, speed and 2-second hold conditions are unchanged.
+
+`test_rules.py` covers sequential handling on different wire links, interrupted contact, simultaneous contact without any clip-location predicate, one-arm partial credit, insufficient second-arm contact, fresh-trial counters, invalid duration inputs and latched unsafe zero. These are scalar-rule regressions, not simulated-physics acceptance.
+
+The submitted recordings were rescored from their original native 240 Hz contacts and measured wire poses, with evidence hashes checked. The legacy full-score hold provides the unchanged all-link release witness for the demo; the tool refuses to infer an unavailable release. Dream remains 0.0 and the demo remains 1.0. `SCORING_REVISION.json` records contact durations and provenance. Run:
+
+```bash
+python tools/rescore_recording.py /absolute/path/to/recorded-native-output
+```
+
+No geometry, instruction, controller or media changed, so the existing uploaded videos and setup image remain applicable as M-6GRHYN. Rescoring did not invoke Dream again and is not a fresh policy trial. Original receipts and source snapshots are preserved.
+
+Fresh native Isaac Sim/PhysX validation (`wire-gate-scoring-v2-native-01`, 320 x 180 cameras) also scored **1.0** after **1184 controls / 59.2 simulated seconds**, first success at control **1063**, with sources unchanged during execution. Runtime was **343.96 seconds / 5.73 minutes**. All **14,208 scored substeps** were checked: zero unsafe events, inter-arm contacts or robot/post contacts. Measured contact totals were **31.9875 s left / 41.3792 s right**. Both-arm participation qualified at control **348**, before the first correct route at control **781**. This is additional scorer validation, not replacement submission footage or a new Dream trial. Source hashes and native evidence hashes are recorded in `SCORING_REVISION.json`; result metadata was updated after execution.

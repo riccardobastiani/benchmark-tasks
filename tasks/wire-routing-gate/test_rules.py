@@ -10,6 +10,32 @@ assert r.score(False,False,False,True,False)==0
 assert r.score(False,True,False,False,True)==.5
 assert r.score(False,True,True,False,True)==.5
 assert r.score(False,True,True,True,True)==1
+# Routing earns partial credit independently of arm participation.
+assert r.score(False,True,True,True,False)==.5
+assert r.score(False,True,False,False,False)==.5
+# Sequential handling, interrupted contact and different wire locations count.
+use=r.GripperParticipation()
+for contacts in [{'left':{2},'right':set()}, {'left':set(),'right':set()},
+                 {'left':set(),'right':{40}}, {'left':{3},'right':set()},
+                 {'left':set(),'right':{41}}]:
+ use.record(contacts,.1)
+assert use.complete
+assert r.score(False,True,True,True,use.complete)==1
+# Simultaneous contact can happen anywhere on the wire; no clip predicate.
+use=r.GripperParticipation()
+for _ in range(48):use.record({'left':{1},'right':{4}},1/240)
+assert use.complete
+assert r.score(False,True,True,True,use.complete)==1
+assert r.score(True,True,True,True,use.complete)==0
+# One arm, fleeting second-arm contact, and a fresh trial cannot earn full score.
+use=r.GripperParticipation();use.record({'left':{3},'right':set()},1.)
+use.record({'left':set(),'right':{20}},.1)
+assert not use.complete and r.score(False,True,True,True,use.complete)==.5
+assert not r.GripperParticipation().complete
+for bad_dt in (float('nan'),float('inf'),0.,-.1):
+ try:use.record({'left':set(),'right':set()},bad_dt)
+ except ValueError:pass
+ else:raise AssertionError('Invalid contact measurement accepted')
 seam=[(None,None,np.array([0,.012,.008]),np.array([0,.00005,.008])),
       (None,None,np.array([0,-.00005,.008]),np.array([0,-.012,.008]))]
 assert r.clip_state(seam,np.zeros(3))==(True,True)

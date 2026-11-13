@@ -28,5 +28,27 @@
     "test_rules.py": "c33683b13720d674c82c208742a78c6d5bf666b06d4fa6d0b3e6d6e50cde5722"
   },
   "runner_change": "Hosted Dream policy is initialized after native reset, avoiding idle expiry during simulator startup. Added exact prompt and registered-budget checks. Scripted controller, geometry, mechanism and evaluator unchanged.",
-  "packaging_change": "Explicitly pin the previously tested Inspect Robots 0.60.0 dependency."
+  "packaging_change": "Explicitly pin the previously tested Inspect Robots 0.60.0 dependency.",
+  "scoring_revision": {
+    "reason": "Remove simultaneous contact over the blue clip as a prerequisite for any score.",
+    "participation": "Independent cumulative fingertip contact >=0.2 s per arm anywhere during the scored trial; sequential and interrupted handling count.",
+    "partial_credit": "Correct connected-span routing plus blue alignment earns 0.5 independently of participation.",
+    "unchanged": [
+      "geometry",
+      "instruction",
+      "controller",
+      "retention failures",
+      "release and clearance",
+      "2-second hold",
+      "runtime",
+      "uploaded media"
+    ],
+    "evidence": "SCORING_REVISION.json",
+    "current_source_sha256": {
+      "task.py": "727084d3b3304b3afd8c74ce88a40695f6f28f1d1aca91768a3436ca6e802645",
+      "rules.py": "0e51f9491ef9373d94497b7e2046051d84db91662f108b33974badaca601973c",
+      "test_rules.py": "a9b412cdcead4ef7eb839dd15a97464fff67679b50b39d7ffdd3c58e77abfd0b",
+      "tools/rescore_recording.py": "790fe1ef948b87c9a5ab0ac60d39823d19f1a34d7be1daf25dbea7708c54fc20"
+    }
+  }
 }
