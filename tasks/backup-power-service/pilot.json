@@ -1,0 +1,6 @@
+{
+  "kind": "backup_power_service",
+  "instruction": "Replace the red faulty control cassette with the green spare and return the panel to service. Use HOLD TEST to verify the meter reads live, then prove the BUS below 1 V with both MAIN and BACKUP isolated before opening the service guard. Keep both sources isolated during service. Put the removed cassette in the red tray, close the guard before restoring both supplies, and finish with both hands released and clear.",
+  "max_steps": 2400,
+  "control_hz": 20
+}
