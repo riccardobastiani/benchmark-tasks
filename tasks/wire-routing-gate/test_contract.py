@@ -12,6 +12,7 @@ for field in ('title','category','instruction','setup','scoring','run_limit','fi
 assert spec['category'] in ('Impact on jobs','Impact on AI timelines','Safety and alignment',
                             'Societal relatability','Other')
 assert len(spec['fidelity'])<=500
+assert len(spec['scores'])<=300
 assert spec['instruction']==pilot['instruction']
 assert pilot['max_steps']==1200 and pilot['control_hz']==20
 for name in ('task.py','geometry.py','rules.py','interaction.py','build_scene.py','setup.png',
