@@ -1,0 +1,6 @@
+{
+  "kind": "light_curtain_commissioning",
+  "instruction": "Position and secure the light curtain so it protects the press front opening. Check the opening with the test rod and verify the press inhibit, stop and reset behavior. Park the rod, complete a guarded test cycle and leave both grippers clear.",
+  "max_steps": 3600,
+  "control_hz": 20
+}

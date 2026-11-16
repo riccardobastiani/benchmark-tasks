@@ -1,0 +1,20 @@
+{
+  "title": "Install and commission an assembly-press light curtain",
+  "category": "Impact on jobs",
+  "instruction": "Position and secure the light curtain so it protects the press front opening. Check the opening with the test rod and verify the press inhibit, stop and reset behavior. Park the rod, complete a guarded test cycle and leave both grippers clear.",
+  "setup": "Two calibrated YAM arms, bases 610 mm apart, on an 1100 x 1300 mm wooden table at z=747.5 mm. A fixed guarded press trainer has a 260 mm-wide front opening from 50 to 210 mm above the table. The 320 g steel/aluminium optical carrier starts at its lower indexed position, approximately 50 mm too low. A spring-loaded 6 mm steel height pin and a separate 3 mm alignment index pin are native passive mechanisms; the right optical post is authored 12 degrees out of alignment before settling. Sixteen channels are 10 mm apart over a 264 mm optical span. A 50 g opaque 14 mm test shaft, approximately 249 mm end-to-end, has a 50 x 18 x 20 mm polymer rear grip and starts in a fixed two-point blue cradle. The guarded 500 g ram has an 80 x 100 mm face, 120 mm stroke and a finite-force drive. Separate blue TEST MODE, yellow RESET and green CYCLE START buttons and three status lamps sit on the right. The physical guide rails, front sill, upper visor, side guards and rear enclosure are fixed. geometry.py specifies all authored shapes, materials, dimensions and poses; seed 0, no jitter, 0.5 s settling.",
+  "scoring": "0.25 for a released, secured and aligned installation covering the complete 14 mm object-centre envelope for at least 1 s. 0.5 additionally requires every inspection cell to accumulate at least 60 ms of qualifying circular-shaft obstruction at an actual shaft material-point speed <=40 mm/s, plus measured blocked-start inhibition, moving stop and reset without motion. 1.0 also requires a completed guarded cycle, the rod stationary in its cradle, both hands clear, and the ram returned up, held for 1 s. Changing or unlocking the mount invalidates prior verification. A stop response exceeding 200 ms after the beam trip scores zero. Nonfinite or unavailable native measurements invalidate the run. There is no human actor or injury score.",
+  "run_limit": "3600 controls at 20 Hz; 180 simulated seconds, including slow verification and withdrawal.",
+  "fidelity": "Native Isaac Sim rigid bodies, passive pins and gripper contacts; no attachments or prop teleports. PhysX rays model 16 channels; coloured beams visualize sensing. Inspection speed measures the same shaft material point between native poses at 240 Hz; solver velocity is logged separately. Beam trip: 12.5 ms; button stable press: 100 ms. Finite 40 N ram drive, 80 mm/s stroke. Optics, guards and control are simplified. No human injury model or real-machine safety certification.",
+  "scores": "Dream-1 run: 0.0; demo: 1.0. Server-session renewals during the model trial are documented in README.md.",
+  "reset_notes": "Fixed layout, seed 0, no object jitter. Restore authored bodies and passive joints, reset controller/proof state, then settle for 0.5 s. The screenshot is the post-settling starting layout. No consumed objects.",
+  "context": "Maintenance technicians check press safeguarding before production resumes. A poorly positioned or ineffective light curtain can expose a worker to crushing; this simplified trainer evaluates commissioning behavior.",
+  "keywords": [
+    "industrial maintenance",
+    "assembly press",
+    "light curtain",
+    "bimanual",
+    "safeguarding verification"
+  ],
+  "media": "M-FQ7FKE"
+}
