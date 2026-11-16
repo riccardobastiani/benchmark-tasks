@@ -1,0 +1,209 @@
+{
+  "source": "Original procedural Isaac Sim surgical tray clearance, approved medical-label revision",
+  "native_demo": "surgical-tray-clearance-medical-labels-1080p-01",
+  "native_demo_score": 1.0,
+  "native_demo_steps": 1038,
+  "instruction": "Dispose of both complete syringe-and-needle devices in the red SHARPS ONLY container. Keep both blunt reusable instruments on the tray. Use both arms to place the tray in the SOILED INSTRUMENTS collection area, release it and withdraw both grippers.",
+  "runtime": {
+    "isaacsim": "6.1.0.0",
+    "isaaclab": "17.0.2",
+    "isaaclab-arena": "0.3.0",
+    "yam-arena": "0.1.0"
+  },
+  "demo_source_files_sha256": {
+    "pyproject.toml": "f65afa0b86cccf56c2a2f79d663e35e763629b009795e06dc9bf56b11a615782",
+    "tools/run_recovery_pilot.py": "6a2ab12cd5a036afe8b547c9a04dfaaef73b3046dd2726ebfd16210301e4a76c",
+    "resist_isaac/__init__.py": "ed18fdcd2a9d169b9c4a2739ba20805f3a2838cd222fc22c0d61c7bb63ef2e84",
+    "resist_isaac/recovery.py": "3aa5733f3020b803d2c96dd863fc0c67bff4991545fcc4bae913a5d283bd461d",
+    "resist_isaac/runtime.py": "01108d8da77eeef9be3ce7edf71e91554c7b6d0f1f4d088b771c256980dec468",
+    "resist_isaac/state.py": "9ebf40d1469ca02ff354400dacebe6b20d17d4ff411605bac479c677c65bd384",
+    "resist_isaac/usd_assets.py": "49a74d22fe0451f8e63961234839e6a92080687e042802f2e0df62d9ffb5856a",
+    ".gitignore": "9c63842edb7bed8a45ddddbf916a02bb4e637cc2ab508b1d36def426eddaa9c9",
+    "LICENSE": "c4155ae5e99236f704ed0e168e6c0ca0b09156546ef173ec3cea718c49da1d2d",
+    "README.md": "d9f1516e4a78bf0c248cfdb5387380850e069077a39f9e3358a17b54e0fb12ba",
+    "assets/SHARPS_ONLY.png": "4498c1eb7da4a62cce0e7e161dea3182c93247ee20e7ea52d1ae4c3f153857a7",
+    "assets/SOILED_INSTRUMENTS.png": "f01338371f01ba0baa1b0b254fde9b039594ce8e68dabd846792dda0cbc60eb3",
+    "assets/USED_SURGICAL_INSTRUMENTS.png": "e99d6438cf255fff5764afb3b2d7d4e16ae7cea8a414c3725990bf0ea65e32f2",
+    "build_scene.py": "c5dff050d95f21452d401f215de6107068bb8507b9766e5a34003c83efb24e11",
+    "final.png": "026923a2a249873b9af43d2963ba92f65a10e296b440b054c532bc7688522960",
+    "geometry.py": "1760616b173a017a4d6c3aa2b31903762e4d7b7f7839ed96ce8ee202bdc0274e",
+    "interaction.py": "156156ba0d7ba69507c71c5feba8d86211c987f1b9011b8de830dba8a82ad18e",
+    "pilot.json": "21c58c76199f3ce27806b0ac93002abcf9fc98e67224f72c35d57737457d4799",
+    "rules.py": "0eb559cb37a057f72b98e8291fd48c61d53af0f6349f7ffc9846826a60793545",
+    "setup.png": "14d3537f58ef121e0482f6602ebbde2d682b919e5d2d0e1b6118ff298075dbda",
+    "task.json": "2c0d69ff9bc387783d64b1086b4a56acb688471f8078a5bb2d898145f82208e7",
+    "task.py": "36b049e413d648d3790408b615afefea19f82edf2873212b6c11262a6c6950e4",
+    "test_geometry.py": "d8e5332250bced0493411262dab0cb04467fb8227a1ecfb22e80078dc5dc76ef",
+    "test_rules.py": "bb9ee6997be1161f412584083349fd2b8720099b2a1be692624e6835457c75af"
+  },
+  "demo_evidence_sha256": {
+    "close_cam.mp4": "854d92ee6752c8569a683e01d6d10c9b48154485de36bcba3ed04e43ed9e435d",
+    "control-timing.jsonl": "918ffc2355578deb07de10b20b630e48ee7610d62265db4a8c044b4982af925b",
+    "final-close_cam.png": "b4ab64f908a93e6d35066af262ec4e25947403338a8a8e06b70775b6f7472157",
+    "final-top_cam.png": "d958ec1ecabb3c35a65191291cd65e8f212d2632add3b2fa98933101bd86a7a2",
+    "native-clearance-events.jsonl": "454354582edd610bbb9b60fff9bc96a4bf834d512e34a131400657ca31c01612",
+    "setup-close_cam.png": "b70302899bbb308fcff611cc4179963664d8629d5fec4f7a92c71913917ca9d9",
+    "setup-top_cam.png": "31954f549fc6f58731e2b510ef9f879e71e2838fae5c24b57c95cfb8f2083352",
+    "top_cam.mp4": "c60fd6bbc5f6c9c523b48c64a7a870cdbaaa4819b3bebcbebb4198af31c2843b",
+    "trace.jsonl": "1b7ce477be5e11e4aac26146a04552b58e5a5259c780e43806161e1d15346e54"
+  },
+  "demo_source_unchanged": true,
+  "demo_object_reset_state": {
+    "tray/pan": [
+      [
+        0.28999999165534973,
+        2.1901511715327615e-09,
+        0.7504999041557312
+      ],
+      [
+        -3.525195779729984e-08,
+        3.291275163519458e-07,
+        0.0,
+        1.0000001192092896
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "sharp_a/device": [
+      [
+        0.24092498421669006,
+        0.015002062544226646,
+        0.7640249133110046
+      ],
+      [
+        4.396829808683833e-06,
+        -0.019648903980851173,
+        2.896724436141085e-05,
+        0.9998070001602173
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "sharp_b/device": [
+      [
+        0.2951248288154602,
+        -0.08800027519464493,
+        0.7619986534118652
+      ],
+      [
+        -3.7105148749105865e-06,
+        0.007141640409827232,
+        -4.336920028435998e-06,
+        0.9999744892120361
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "spatula/tool": [
+      [
+        0.28999999165534973,
+        0.03000001609325409,
+        0.7594996690750122
+      ],
+      [
+        -5.485489964485168e-07,
+        -7.16187059879303e-07,
+        -2.2118911147117615e-08,
+        1.0000001192092896
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "holder/tool": [
+      [
+        0.18999998271465302,
+        0.08500003069639206,
+        0.7584996223449707
+      ],
+      [
+        -4.034108371797629e-07,
+        3.494507438972505e-07,
+        1.1920928955078125e-07,
+        1.0000001192092896
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  },
+  "reset_state_units": "World metres; object_reset_state = [position_xyz, quaternion_wxyz, linear_and_angular_COM_velocity]. Scored state follows 0.5 s native settling.",
+  "scope": "Executable scene, scorer, controller, labels and native runtime are unchanged from the verified demo and completed hosted run. Submission documentation, evaluation metadata and media ID are added afterward.",
+  "hosted_evaluation": {
+    "recording": "surgical-tray-clearance-dream-1080p-01",
+    "model": "dreamlabs/dream-1-beta",
+    "score": 0.0,
+    "steps": 2400,
+    "elapsed_wall_s": 1548.5952869621105,
+    "same_instruction": true,
+    "same_scene_scorer_controller_runtime": true,
+    "reset_max_absolute_difference": 0.0,
+    "setup_top_and_close_pngs_byte_identical": true,
+    "source_unchanged": true,
+    "source_fingerprint": "f335b4b5ee077cd783a7168308f69453f36242aa919a44880f40018baf7d07ca",
+    "receipt_sha256": "079091cc77155bbb41d248fb96041748a527f95880055a67f5fa235654e95830",
+    "evidence_sha256": {
+      "close_cam.mp4": "791c466fe350f365e7a0e7986bf49ad7ccaa727fb2f21145c9828411eabcc308",
+      "control-timing.jsonl": "a6d37d14abc6a6a173b2905a60472e125d9d9e1fc66e94dfce2877d6fffad532",
+      "final-close_cam.png": "b829d755531be7101885ff43c49efd2e1779df83201a3b3bd89013c0e9f664a5",
+      "final-top_cam.png": "db7080780c4727f128c4b235bab1b1036756eaebab8829c5b777fb9302397e7e",
+      "native-clearance-events.jsonl": "841d21c54a9f566393dea0de7346000d922178bc3eb082ccc5e32b5f975d63d5",
+      "setup-close_cam.png": "b70302899bbb308fcff611cc4179963664d8629d5fec4f7a92c71913917ca9d9",
+      "setup-top_cam.png": "31954f549fc6f58731e2b510ef9f879e71e2838fae5c24b57c95cfb8f2083352",
+      "top_cam.mp4": "b5f8440de68b35ceab054c94276d834249f8173d1a42da43a0523ced5affd73f",
+      "trace.jsonl": "fca2dfd20f97afd6130471bc6122fb3ddb89ef77f60159c385b9dd2fcc0328d8"
+    },
+    "sessions": {
+      "chunks": 50,
+      "api_attempts": 101,
+      "session_renewals": 49,
+      "distinct_sessions": 50,
+      "preroll_steps": 32,
+      "model_control_steps": 2368,
+      "rows_per_chunk": 48,
+      "evaluation_type": "renewed-session evaluation",
+      "retry_reasons": {
+        "expired": 49,
+        "pool_full": 2
+      }
+    },
+    "policy_versions": {
+      "inspect-robots": "0.60.0",
+      "inspect-robots-dream": "0.1.0",
+      "dreamlabs-client": "1.1.3"
+    },
+    "guardrails": [
+      "clamp",
+      "delta-limit"
+    ],
+    "session_limit": "Model memory restarts after a session replacement. This is a renewed-session evaluation, not an uninterrupted-session claim."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "kind": "surgical_tray_clearance",
+  "instruction": "Dispose of both complete syringe-and-needle devices in the red SHARPS ONLY container. Keep both blunt reusable instruments on the tray. Use both arms to place the tray in the SOILED INSTRUMENTS collection area, release it and withdraw both grippers.",
+  "max_steps": 2400,
+  "control_hz": 20
+}
