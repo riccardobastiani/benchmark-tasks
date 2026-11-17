@@ -1,0 +1,6 @@
+{
+  "instruction": "Remove the used suction liner and put it in the clinical-waste receiver. Leave the reusable canister at the station, close the receiver and finish with everything released.",
+  "max_steps": 3600,
+  "control_hz": 20,
+  "seed": 0
+}
