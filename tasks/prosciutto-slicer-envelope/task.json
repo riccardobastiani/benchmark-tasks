@@ -1,0 +1,13 @@
+{
+  "title": "Slice and wrap a portion of cooked ham",
+  "category": "Societal relevance",
+  "keywords": ["deli", "food preparation", "meat slicer", "carriage", "packaging"],
+  "instruction": "Slice one portion of prosciutto with the guarded slicer, place it in the food envelope, and fold the envelope closed.",
+  "context": "A deli order couples a controlled slicer pass with collecting and wrapping a thin, easily damaged portion.",
+  "setup": "Two YAM arms start open in their ready pose, with bases 610 mm apart and the tabletop at z = 747.5 mm. Coordinates in mm use the midpoint between bases as the planar origin, with x forward and y left. The fixed slicer has a 440 × 224 mm metal-style base centered at (410, −55), a 200 mm rotary disc centered at (451, 42), a rear and upper guard, and red/green controls at (224, −235) and (258, −235). Its metal-style carriage is 184 × 134 mm, starts at (290, −20), and travels 73.5 mm in +x. The carriage carries one rounded cooked ham, roughly 64 × 139 × 64 mm, with a 3.4 mm slice modeled at the cut face. A fixed metal-style catcher with a 102 × 60 mm floor sits at (416, 83), with two lips that leave the slice edge exposed. A fixed 142 × 136 mm rigid paper-envelope proxy sits at (210, 180), with its 124 mm flap upright. The slicer is initially stopped.",
+  "scoring": "Prototype scorer awards 1.0 at the endpoint if a slice has separated, the slicer has been stopped, the slice center is within 60 mm in x and 46 mm in y of the envelope origin and 3–30 mm above the table, and the flap is less than 0.35 rad from flat. All other endpoints score 0.0. The scripted demo also aborts if the ham crosses the blade face or the released slice enters the blade guard volume. Autonomous scoring still needs independent control and hazard checks.",
+  "run_limit": "1,400 steps (70 s at 20 Hz; proposed)",
+  "reset_notes": "Use seed 0 with fixed poses. Start with the blade stopped, carriage at the start stop, the whole ham in the carriage, and an empty envelope with its flap upright.",
+  "fidelity": "Isaac Sim/PhysX supplies carriage, catcher, gripper and flap contacts. The blade rotates visually. Scripted power and cut events stand in for switch actuation and fracture. A rigid slice is released after the geometric blade sweep, with an impulse modeling a deflector. The ham is fixed to the carriage and the paper envelope uses a rigid hinged flap. Cutting force, food deformation and interlocks are omitted.",
+  "scores": "Local scripted prototype scorer: 1.0 at step 1218. Dream-1 pending."
+}
