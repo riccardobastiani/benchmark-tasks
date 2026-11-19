@@ -4,7 +4,7 @@ After a suction procedure, remove the used liner into the clinical-waste receive
 
 The distinctive interaction is removing a connector, handling its separate tethered plug without pulling it back out, and retaining that closure through extraction of the loaded liner. A closed waste-bin endpoint alone cannot earn credit after an unsafe history. This is not sharps sorting or installation of a fresh vacuum-cleaner bag. [SOURCES.md](SOURCES.md) compares four related screened board tasks and records the remaining overlap and fidelity concerns.
 
-This is an original reproducible bench trainer inspired by Serres instructions, **not OEM CAD or a validated commercial-device replica**. The loaded liner is rigid and has two custom raised grasp pads; the receiver has a custom lid pad. Those adaptations limit transfer to an unmodified clinical product. Actual plug insertion force, leakage, vacuum response and flexible-bag mechanics remain unvalidated.
+The bench trainer follows the Serres disposal sequence with a custom port and a catalogued industrial blanking plug. The loaded liner is rigid and has two raised grasp pads. The receiver has its own lid pad. Plug insertion force, leakage, vacuum response and flexible-bag mechanics still require physical validation.
 
 ## Instruction and fixed trial
 
@@ -33,7 +33,7 @@ Native measurements implement these observations as follows:
 
 | Observation | Native implementation |
 | --- | --- |
-| Plug seated/retained | Port-relative cap origin within 3.5 mm horizontally and vertically of its full-seat target; cap/liner up-axis dot >0.97. Contact geometry retains it; there is no software latch. |
+| Plug seated/retained | Radial error below 1.2 mm, axial position between 0.8 mm below and 1.0 mm above full seating, and cap/liner up-axis dot >0.99. A compliant PhysX contact approximates the rubber lip as it passes the insert and engages under it. |
 | Vacuum OFF | Actual passive lever rotation >0.90 rad. No vacuum pressure is simulated. |
 | Supported partial checkpoint | Relative horizontal offset and height error each <6 mm, liner/canister up-axis dot >0.97. |
 | Canister retained | Root within 10 mm of its authored start, up-axis dot with world up >0.97. |
@@ -66,11 +66,19 @@ Each run retains a source snapshot, versions, actual native state/action trace, 
 
 ## Physical replication and reset
 
+Use an [A. Vogt 1504 EPDM blanking plug](https://www.gummivogt.de/en/products/buffers-and-plugs/blanking-plugs-series), specified for a 16 mm hole in a 1–3 mm panel, with a 23 mm head and 12.5 mm overall height. Make a rigid 2.0 mm insert with a finished 16.0 mm opening and clearance underneath for the plug lip. The removable elbow has a separate 15.8 mm spigot and a shoulder. Mark the cap and insert at full seating. On a clean trainer with inert ballast, film the mark during lift, carry, release and settling. After the liner settles, inspect the mark and check the lip is still engaged. Repeat with a deliberately shallow cap to establish the visual and mechanical difference. Record insertion and withdrawal forces with the tether slack if a force gauge is available. Physical results are pending.
+
+The simulator uses 23 mm by 12.5 mm overall plug dimensions and an approximate 16.5 mm lip and 15.2 mm stem at the insert. The compliant contact spring is set to 250 N/m per contact with 0.3 N·s/m damping as a numerical starting point. These settings are estimates pending bench data.
+
+In the latest native closure diagnostic, the robot removed the elbow and the scorer rejected shallow placement. The plug remained 3.27 mm above the nominal seat after release, exceeding the 1.0 mm limit. A revised full-score recording and physical retention measurements are pending.
+
 The complete primitive/mesh construction, fixed layout and passive joint dimensions are in `geometry.py`; `preview.py` exports apparatus USDs. This defines the **custom trainer**, not a commercial Serres installation. A safe repeatable real bench experiment uses a reusable replica and clean sealed ballast: immobilize approximately 1 kg of dry beads inside a sealed inner pouch/rigid body, adjust the complete removable liner to **1.10 kg ±10 g** on a scale, and retain the specified external body and port geometry. No loose powder, unsealed liquid, biological material or sharp is placed against the shared robot. The stained appearance can be a printed insert. This does not reproduce flexible film or certify plug retention on a clinical liner.
 
 Restore the connector in the port, loose plug to its marked start, lever ON, liner seated, receiver empty/lid at its 150-degree stop and both hands open/clear. Check the tether and plug for damage; use tabletop marks, ruler and scale. Target ordinary reset time is 2–5 minutes after replica fabrication; this is an estimate, not a measured real-robot result. A rough materials-only trainer budget is $90–180 for plastics/printed parts, hinge/fasteners, sealed ballast and receiver; this is an engineering estimate, not a supplier quote, and excludes robot/simulator access. Fit and force calibration on the built replica is still required. Actual manufacturer clinical liners are single-use and must never be reused.
 
-## Recorded results and limitations
+## Historical results for the previous closure
+
+The measurements below describe the earlier 18 mm port and loose closure. The revised geometry requires new scripted and Dream-1 recordings.
 
 The original continuous native 1080p scripted recording completed **2,790 controls / 139.5 simulated seconds**, score **1.0**, with **33,480 scored physics samples**, cap retained, connector parked, canister drift about **1.57 mm** and zero detected inter-arm contact. Runtime was about **22.5 minutes** on an RTX 3090 host. All three videos fully decoded and are under 22 MB each. That recording used the same physical geometry/controller with an explicit procedural instruction; the reference controller does not interpret language. The model uses the neutral registered instruction above.
 

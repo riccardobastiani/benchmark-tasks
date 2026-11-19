@@ -2,7 +2,7 @@
 import math
 import numpy as np
 
-from .geometry import BIN_HANDLE, BIN_HEIGHT, BIN_HINGE, CANISTER, CANISTER_HEIGHT, CATCH, CONTROL, HANDLES, LINER_DEPTH, PORT, RECEIVER
+from .geometry import BIN_HANDLE, BIN_HEIGHT, BIN_HINGE, CANISTER, CANISTER_HEIGHT, CAP_SEAT, CATCH, CONTROL, HANDLES, LINER_DEPTH, RECEIVER
 
 
 def actions(task, base, stop_after=None, max_steps=3600, lid_only=False):
@@ -226,8 +226,16 @@ def actions(task, base, stop_after=None, max_steps=3600, lid_only=False):
     yield from carry('lift_closure','left','liner','closure',point+[0,0,.045],1.8,relative,np.eye(3))
     def closure_target():
         p,q,_ = task.native('liner','lid_and_load')
-        return p+quat_xyzw_to_matrix(q)@(PORT+[0,0,.012])
+        return p+quat_xyzw_to_matrix(q)@CAP_SEAT
     yield from carry('align_closure_above_port','left','liner','closure',lambda:closure_target()+[0,0,.025],2.5,relative,np.eye(3))
+    yield from carry('shallow_closure','left','liner','closure',lambda:closure_target()+[0,0,.004],2.,relative,np.eye(3))
+    yield from hold('verify_shallow_closure',.3)
+    if task.measurements()['cap_seated']:
+        raise RuntimeError('Shallow closure incorrectly measured as fully seated')
+    # Lead with one edge of the rubber lip, then press the flange level.
+    tipped = axis_angle_matrix([0.,1.,0.],math.radians(15))
+    yield from carry('engage_closure_edge','left','liner','closure',
+                     lambda:closure_target()+[0,0,.002],2.2,relative,tipped)
     yield from carry('seat_closure','left','liner','closure',closure_target,3.,relative,np.eye(3))
     yield from hold('verify_seated_closure',.6)
     yield from release('left','closure')

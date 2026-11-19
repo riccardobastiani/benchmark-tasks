@@ -13,6 +13,9 @@ CANISTER_HEIGHT = .190
 LINER_DEPTH = .182
 LID = CANISTER + [0, 0, CANISTER_HEIGHT]
 PORT = np.array([-.028, -.022, .011])
+PORT_RADIUS = .008
+PORT_INSERT_THICKNESS = .002
+CAP_SEAT = PORT + [0, 0, .012]
 RECEIVER = np.array([.300, -.200, TABLE_Z + .008])
 CONTROL = np.array([.265, .245, TABLE_Z + .028])
 BIN_OPEN_ANGLE = math.radians(150)
@@ -37,6 +40,21 @@ def ring(radius, thickness, half_height, z=0, color=(.7, .8, .8, .22), n=32):
                           (radius * math.cos(a), radius * math.sin(a), z), color,
                           orientation=[math.cos(a / 2), 0, 0, math.sin(a / 2)]))
     return shapes
+
+
+def cap_lip(color):
+    """Rounded-insertion profile for the compliant replica contact approximation."""
+    profile = [(-.0095, .0072), (-.0069, .00825), (-.0058, .00825), (-.0048, .0076)]
+    n = 32
+    points = [[r*math.cos(2*math.pi*i/n), r*math.sin(2*math.pi*i/n), z]
+              for z, r in profile for i in range(n)]
+    faces = [list(reversed(range(n))), list(range((len(profile)-1)*n, len(profile)*n))]
+    for level in range(len(profile)-1):
+        for i in range(n):
+            a, b = level*n+i, level*n+(i+1)%n
+            faces.append([a, b, b+n, a+n])
+    return dict(type='mesh', mesh=dict(points=points, faces=faces), color=list(color),
+                compliant_fit=True, friction=[.75, .6])
 
 
 def rounded_tub(hx, hy, z0, z1, radius, wall, color):
@@ -218,7 +236,13 @@ def geometry():
         liner.append(box((.010,.020,.003),(-.015,sign*.083,.005),(.85,.88,.84,1)))
     # Normal closed unused serial port, with no extra manipulation requirement.
     liner += [cylinder(.017, .010, (.032, .028, .013), (.82, .86, .83, 1))]
-    neck = ring(.0105, .003, .009, PORT[2], (.88, .91, .87, 1), n=16)
+    neck = ring(.0105, .003, .007, PORT[2]-.001, (.88, .91, .87, 1), n=32)
+    # The 2 mm insert has shoulder support and a clear underside for the lip.
+    insert = ring(PORT_RADIUS+.0015, .003, PORT_INSERT_THICKNESS/2,
+                  CAP_SEAT[2]-.003-PORT_INSERT_THICKNESS/2, (.27, .32, .34, 1))
+    for shape in insert:
+        shape['compliant_fit'] = True
+    neck += insert
     for shape in neck:
         shape['position'][0] += PORT[0]
         shape['position'][1] += PORT[1]
@@ -227,8 +251,11 @@ def geometry():
     # Gel dominates the preview inertia; the thin lid sectors add collision detail only.
     part['shapes'] += lid_sectors()
     cap_position = LID + [-.029, .037, .018]
-    cap = body('closure', [cylinder(.012, .003, color=(.85, .91, .84, 1)),
-                          cylinder(.007, .005, (0,0,-.008), (.85,.91,.84,1))], .008, cap_position)
+    rubber = (.21, .27, .26, 1)
+    cap = body('closure', [cylinder(.0115, .003, color=rubber),
+                          cylinder(.0076, .001, (0,0,-.004), rubber),
+                          cylinder(.008, .00235, (0,0,-.00715), rubber)], .008, cap_position)
+    cap['shapes'][-1] = cap_lip(rubber)
     parts, joints = [part, cap], []
     # Small passive jointed tether; it does not attach the cap to the gripper or seat it.
     start, end = LID + [-.060,-.010,.008], cap_position + [.010,0,0]
@@ -251,7 +278,7 @@ def geometry():
                                 solver_position_iterations=32, solver_velocity_iterations=8)
 
     connection = LID + PORT + [0,0,.012]
-    elbow = [cylinder(.007, .012, (0,0,-.008), (.92,.94,.90,1)),
+    elbow = [cylinder(.0079, .012, (0,0,-.008), (.92,.94,.90,1)),
              box((.012,.011,.009), (0,0,.009), (.92,.94,.90,1)),
              dict(type='capsule', size=[.008], fromto=[0,0,.009,.045,0,.009],
                   color=[.92,.94,.90,1]),

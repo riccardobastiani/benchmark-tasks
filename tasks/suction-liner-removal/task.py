@@ -11,7 +11,7 @@ import numpy as np
 
 from resist_isaac.state import pose_state, reset_joints
 from resist_isaac.usd_assets import create_asset
-from .geometry import BIN_OPEN_ANGLE, BIN_HEIGHT, CANISTER, CANISTER_HEIGHT, CATCH, LID, LINER_DEPTH, PORT, RECEIVER, geometry
+from .geometry import BIN_OPEN_ANGLE, BIN_HEIGHT, CANISTER, CANISTER_HEIGHT, CAP_SEAT, CATCH, LID, LINER_DEPTH, PORT, RECEIVER, geometry
 
 CONDITIONS = ('design_preview','recoverable')
 FOLDER = Path(__file__).parent
@@ -188,14 +188,15 @@ class SuctionLinerPreview:
         rotation = quat_xyzw_to_matrix(q)
         cap,cq,_ = self.native('liner','closure')
         cap_local = rotation.T@(cap-liner)
-        error = cap_local-(PORT+[0,0,.012])
+        error = cap_local-CAP_SEAT
         cap_up = float(np.dot(quat_xyzw_to_matrix(cq)[:,2],rotation[:,2]))
         connector,_,_ = self.native('connector','elbow')
         shell,sq,_ = self.native('canister','shell')
         _,lq,_ = self.native('waste_bin','lid')
         _,vq,_ = self.native('vacuum','lever')
-        cap_seated = np.linalg.norm(error[:2])<.0035 and abs(error[2])<.0035 and cap_up>.97
+        cap_seated = np.linalg.norm(error[:2])<.0012 and -.0008<error[2]<.0010 and cap_up>.99
         return dict(cap_seated=bool(cap_seated),cap_error_m=float(np.linalg.norm(error)),
+            cap_seat_gap_m=float(error[2]),cap_radial_error_m=float(np.linalg.norm(error[:2])),
             cap_up=cap_up,liner_lift_m=float(liner[2]-shell[2]-CANISTER_HEIGHT),
             switch_angle_rad=float(2*np.arctan2(vq[2],vq[3])),
             bin_lid_angle_rad=float(2*np.arctan2(lq[1],lq[3])),
@@ -336,12 +337,19 @@ def make_task(condition):
 
 
 def clear_plastic(path, data):
-    """Thin residue films are visible from either side of the clear liner."""
-    from pxr import Usd, UsdGeom
+    """Author double-sided residue and compliant rubber contact materials."""
+    from pxr import PhysxSchema, Usd, UsdGeom
     stage = Usd.Stage.Open(str(path))
     root = '/'+data['name']
     for part in data['bodies']:
         for i,shape in enumerate(part['shapes']):
+            if shape.get('compliant_fit'):
+                prim = stage.GetPrimAtPath(f"{root}/Materials/{part['name']}_{i:03d}")
+                material = PhysxSchema.PhysxMaterialAPI.Apply(prim)
+                # ponytail: lumped contact spring; calibrate from bench forces when available.
+                material.CreateCompliantContactStiffnessAttr(250.0)
+                material.CreateCompliantContactDampingAttr(.3)
+                material.CreateCompliantContactAccelerationSpringAttr(False)
             if shape['type'] == 'mesh' and not shape.get('collision',True):
                 prim = stage.GetPrimAtPath(root+'/'+part['name']+f'/shape_{i:03d}')
                 UsdGeom.Mesh(prim).CreateDoubleSidedAttr(True)
