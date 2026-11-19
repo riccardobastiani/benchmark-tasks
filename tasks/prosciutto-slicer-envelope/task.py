@@ -10,7 +10,8 @@ from resist_isaac.recovery import create_asset
 from resist_isaac.state import reset_joints
 from .geometry import (BLADE_CENTER, BLADE_GUARD_RADIUS, BLADE_HALF_THICKNESS, BLADE_RADIUS,
                        ENVELOPE, GUARD_ROD_RADIUS, GUARD_NORMAL_OFFSET, HAM_COLLIDER_CENTER,
-                       HAM_HALF_SIZE, PORTION_HALF_SIZE, TABLE_Z, geometry)
+                       CARRIAGE_START, CARRIAGE_TRAVEL_LIMIT, HAM_HALF_SIZE, PORTION_HALF_SIZE,
+                       POWER_OFF, POWER_ON, SWITCH_ACTUATION, TABLE_Z, geometry)
 
 CONDITIONS = ('recoverable',)
 FOLDER = Path(__file__).parent
@@ -18,6 +19,7 @@ FOLDER = Path(__file__).parent
 
 class ProsciuttoTask:
     renderer = 'PathTracing'
+    preview = False
     render_samples = 4
     reset_settle_s = .6
     scene_id = 'prosciutto-slicer-packaging-prototype'
@@ -90,8 +92,13 @@ class ProsciuttoTask:
     def reset(self, base):
         import carb.settings
         import omni.usd
+        from pxr import UsdPhysics
         self.base = base
         self.stage = omni.usd.get_context().get_stage()
+        self.cut_joint = UsdPhysics.FixedJoint.Get(self.stage, '/World/envs/env_0/workpiece/cut_link')
+        if not self.cut_joint:
+            raise RuntimeError('Cut proxy joint is missing from the native stage')
+        self.cut_joint.CreateJointEnabledAttr(True)
         settings = carb.settings.get_settings()
         settings.set('/physics/suppressReadback', False)
         settings.set('/rtx/rendermode', self.renderer)
@@ -105,10 +112,14 @@ class ProsciuttoTask:
             reset_joints(base, side+'_robot', dict.fromkeys(FINGER_JOINTS, FINGER_OPEN))
         self.views = {}
         for asset, body_name in [('workpiece', 'carriage'), ('workpiece', 'ham'),
-                                 ('workpiece', 'portion'), ('envelope', 'flap')]:
+                                 ('workpiece', 'portion'), ('workpiece', 'power_on'),
+                                 ('workpiece', 'power_off'), ('envelope', 'flap')]:
             scene_name = asset+'_'+body_name
             self.views[(asset, body_name)] = base.scene[scene_name].root_physx_view
         self.portion_cut = False
+        self.active = False
+        self.start_pressed = False
+        self.stroke_started_clear = False
         self.edge_contact_seen = False
         self.slicer_running = False
         self.blade_angle = 0.
@@ -119,7 +130,11 @@ class ProsciuttoTask:
             machine = self.descriptions['workpiece']['bodies'][0]
             spin_index = next(i for i, shape in enumerate(machine['shapes']) if shape.get('blade_spin'))
             path = f'/World/envs/env_0/workpiece/machine/shape_{spin_index:03d}'
-            self.blade_spin = UsdGeom.Xformable(self.stage.GetPrimAtPath(path)).AddRotateYOp()
+            prim = self.stage.GetPrimAtPath(path)
+            rotation = prim.GetAttribute('xformOp:rotateY')
+            self.blade_spin = (UsdGeom.XformOp(rotation) if rotation
+                               else UsdGeom.Xformable(prim).AddRotateYOp())
+            self.blade_spin.Set(0.)
         self.slicer_stopped = False
         self.portion_placed = False
         self.flap_closed = False
@@ -147,17 +162,8 @@ class ProsciuttoTask:
                     else:
                         visual.MakeInvisible()
 
-    def release_cut_portion(self):
-        from pxr import UsdPhysics
-        m = self.measurements()
-        if not self.slicer_running or not self.edge_contact_seen or not m['blade_sweep_complete']:
-            raise RuntimeError('The blade edge did not sweep the full cut face')
-        if m['portion_overlaps_blade_guard']:
-            raise RuntimeError('The thin slice overlaps the blade at release')
-        joint = UsdPhysics.FixedJoint.Get(self.stage, '/World/envs/env_0/workpiece/cut_link')
-        if not joint:
-            raise RuntimeError('Cut proxy joint is missing from the native stage')
-        joint.CreateJointEnabledAttr(False)
+    def _release_cut_portion(self):
+        self.cut_joint.GetJointEnabledAttr().Set(False)
         self.set_cut_visual(True)
         # Model the deflector's outward motion at the cut before the native drop.
         from torch import tensor
@@ -165,12 +171,32 @@ class ProsciuttoTask:
             tensor([[0., .31, .035, 0., 0., 0.]], device=self.base.device))
         self.portion_cut = True
 
-    def start_slicer(self):
-        self.slicer_running = True
+    def _update_slicer(self, m):
+        start = m['start_button_travel_m'] >= SWITCH_ACTUATION
+        stop = m['stop_button_travel_m'] >= SWITCH_ACTUATION
+        if stop:
+            self.slicer_stopped |= self.slicer_running
+            self.slicer_running = False
+        elif start and not self.start_pressed:
+            self.slicer_running = True
+            self.slicer_stopped = False
+        self.start_pressed = start
 
-    def stop_slicer(self):
-        self.slicer_running = False
-        self.slicer_stopped = True
+        if not self.slicer_running or self.portion_cut or self.unsafe_reason:
+            self.stroke_started_clear = False
+            self.edge_contact_seen = False
+        elif not m['blade_edge_reached']:
+            self.stroke_started_clear = True
+            self.edge_contact_seen = False
+        elif self.stroke_started_clear:
+            carriage_x = m['carriage_position_m'][0]
+            if carriage_x > self.previous_carriage_x:
+                self.edge_contact_seen = True
+            at_end = carriage_x >= CARRIAGE_START[0] + CARRIAGE_TRAVEL_LIMIT - .001
+            if (at_end and self.edge_contact_seen and m['blade_sweep_complete']
+                    and not m['portion_overlaps_blade_guard']):
+                self._release_cut_portion()
+        self.previous_carriage_x = m['carriage_position_m'][0]
 
     def measurements(self):
         from yam_arena.urdf import quat_xyzw_to_matrix
@@ -199,6 +225,9 @@ class ProsciuttoTask:
         self.portion_placed = bool(in_envelope)
         self.flap_closed = bool(angle < .35)
         return dict(time_s=self.time_s, portion_cut=self.portion_cut,
+                    slicer_running=self.slicer_running,
+                    start_button_travel_m=float(POWER_ON[2]-self.native('workpiece', 'power_on')[0][2]),
+                    stop_button_travel_m=float(POWER_OFF[2]-self.native('workpiece', 'power_off')[0][2]),
                     slicer_stopped=self.slicer_stopped, portion_in_envelope=self.portion_placed,
                     envelope_flap_angle_rad=angle, envelope_closed=self.flap_closed,
                     carriage_position_m=carriage[0].tolist(), portion_position_m=position.tolist(),
@@ -210,22 +239,28 @@ class ProsciuttoTask:
     def begin_episode(self):
         self.time_s = 0.
         self.start_metrics = self.measurements()
+        self.previous_carriage_x = self.start_metrics['carriage_position_m'][0]
         self.active = True
 
     def evaluate(self, base):
         if self.active:
             self.time_s += float(base.step_dt)
-            if self.slicer_running and self.blade_spin is not None:
-                self.blade_angle = (self.blade_angle + 950.*base.step_dt) % 360.
-                self.blade_spin.Set(self.blade_angle)
         m = self.measurements()
-        if self.slicer_running and not m['portion_cut'] and m['blade_edge_reached']:
-            self.edge_contact_seen = True
         if m['ham_blade_clearance_m'] < 0.:
             self.unsafe_reason = 'main ham crossed the infeed face of the blade'
         elif m['portion_cut'] and m['portion_overlaps_blade_guard']:
             self.unsafe_reason = 'released slice entered the blade or guard zone'
-        success = bool(m['portion_cut'] and m['slicer_stopped'] and m['portion_in_envelope'] and m['envelope_closed'])
+        if self.active:
+            self._update_slicer(m)
+            if self.slicer_running and self.blade_spin is not None:
+                self.blade_angle = (self.blade_angle + 950.*base.step_dt) % 360.
+                self.blade_spin.Set(self.blade_angle)
+        m.update(portion_cut=self.portion_cut, slicer_running=self.slicer_running,
+                 slicer_stopped=self.slicer_stopped)
+        m['carriage_x_m'] = m.pop('carriage_position_m')[0]
+        del m['portion_position_m']  # Native vectors remain in trace_objects().
+        success = bool(not self.unsafe_reason and self.portion_cut and self.slicer_stopped
+                       and m['portion_in_envelope'] and m['envelope_closed'])
         return dict(success=success, score=float(success), **m)
 
     def trace_objects(self):

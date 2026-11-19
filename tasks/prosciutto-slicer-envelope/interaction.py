@@ -148,13 +148,15 @@ def actions(task, base, stop_after=None, max_steps=2400):
         yield from move('withdraw_'+label, side, p-.060*r[:, 2]+[0., 0., .020], r, 1., 1.)
 
     def press_switch(name, position, side='right'):
-        rotation = side_frame(side)
-        surface = np.asarray(position)+[0., 0., .004]
-        goal = surface+.006*rotation[:, 2]
-        yield from move('approach_'+name, side, goal-.055*rotation[:, 2], rotation, open_grip, 1.2)
-        yield from move(name, side, goal, rotation, open_grip, .65)
-        yield from hold('confirm_'+name, .25)
-        yield from move('withdraw_'+name, side, goal-.055*rotation[:, 2], rotation, open_grip, .8)
+        rotation = np.array([[0., -1., 0.], [-1., 0., 0.], [0., 0., -1.]])
+        goal = np.asarray(position)+[0., 0., .017]
+        raised = goal+[0., 0., .055]
+        yield from move('approach_'+name, side, raised, rotation, .05, 1.2)
+        yield from align('align_'+name, side, raised, rotation, .05)
+        yield from move(name, side, goal, rotation, .05, 1.25)
+        for _ in range(24):
+            yield from emit('confirm_'+name, side, goal, rotation, .05)
+        yield from move('withdraw_'+name, side, raised, rotation, .05, .8)
 
     def home(side):
         p, r = ready_pose(side)
@@ -163,7 +165,8 @@ def actions(task, base, stop_after=None, max_steps=2400):
     yield from hold('starting_layout', .4)
 
     yield from press_switch('slicer_power_on', POWER_ON)
-    task.start_slicer()
+    if not task.slicer_running:
+        raise RuntimeError('Robot did not depress the start button')
 
     a = math.radians(25)
     x, z = np.array([1., 0., 0.]), np.array([0., math.cos(a), -math.sin(a)])
@@ -173,13 +176,15 @@ def actions(task, base, stop_after=None, max_steps=2400):
     yield from move_object('cutting_stroke', 'right', 'workpiece', 'carriage', CARRIAGE_CUT,
                            np.eye(3), 2.4, handle_grip, carriage_transform)
     yield from hold('settle_carriage_at_blade', .35)
-    task.release_cut_portion()
+    if not task.portion_cut:
+        raise RuntimeError('The powered carriage did not complete the cut')
     yield from hold('slice_falls_to_catcher', .6)
     yield from move_object('return_carriage', 'right', 'workpiece', 'carriage', CARRIAGE_START,
                            np.eye(3), 2.2, handle_grip, carriage_transform)
     yield from release('right', 'carriage_handle')
     yield from press_switch('slicer_power_off', POWER_OFF)
-    task.stop_slicer()
+    if not task.slicer_stopped:
+        raise RuntimeError('Robot did not depress the stop button')
     if stop_after == 'cut':
         yield from hold('observe_cut_slice', 1.)
         return

@@ -207,6 +207,9 @@ class ResistanceEmbodiment(YamArenaEmbodiment):
             for _ in range(max(1, math.ceil(0.5 / self._base.step_dt))):
                 self._env.step(settle_action)
         self._t = 0.0
+        begin_episode = getattr(self._mechanism, "begin_episode", None)
+        if callable(begin_episode):
+            begin_episode()
         if not self.physics_only:
             for _ in range(4):
                 self._base.sim.render()

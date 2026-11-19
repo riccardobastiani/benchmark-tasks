@@ -26,8 +26,10 @@ HAM_HALF_SIZE = np.array([.032, (HAM_FRONT - HAM_REAR)/2, .032])
 PORTION_HALF_SIZE = np.array([.032, .0017, .030])
 ENVELOPE = np.array([.21, .18, TABLE_Z + .004])
 FLAP_HINGE = ENVELOPE + np.array([0., .058, .026])
-POWER_OFF = np.array([.224, -.235, TABLE_Z + .105])
+POWER_OFF = np.array([.179, -.235, TABLE_Z + .105])
 POWER_ON = POWER_OFF + [.034, 0., 0.]
+SWITCH_TRAVEL = .008
+SWITCH_ACTUATION = .004
 
 
 def _arc_xz(y, cx, cz, radius, start_deg, end_deg, thickness, color):
@@ -76,6 +78,7 @@ def _cotto_skin(stations, y_radius, z_radius):
 
 def geometry():
     blade_center = BLADE_CENTER
+    controls_x = (POWER_ON[0]+POWER_OFF[0])/2
     blade_marks = dict(type='mesh', collision=False, blade_spin=True, roughness=.4,
                        color=[.52,.56,.60,1.], position=(blade_center+[0., .0011, 0.]).tolist(),
                        mesh=dict(points=[[.079,0.,.002],[.091,0.,.002],[.091,0.,-.002],[.079,0.,-.002],
@@ -103,13 +106,10 @@ def geometry():
         box((.051, .030, .004), (.416, .083, TABLE_Z + .032), (.72, .75, .76, 1)),
         box((.048, .0015, .004), (.416, .062, TABLE_Z + .035), (.44, .47, .48, 1)),
         box((.048, .002, .014), (.416, .076, TABLE_Z + .050), (.44, .47, .48, 1)),
-        # Put the controls on a low front-left pedestal. The earlier elevated
-        # panel overlapped the carriage handle's approach corridor and blocked
-        # the robot's grasp.
-        box((.045, .025, .049), (.241, -.24, TABLE_Z + .049), (.20, .23, .25, 1)),
-        box((.045, .025, .005), (.241, -.24, TABLE_Z + .097), (.28, .30, .32, 1)),
-        cylinder(.011, .004, POWER_OFF, (.82, .12, .10, 1)),
-        cylinder(.011, .004, POWER_ON, (.13, .66, .24, 1)),
+        # Keep the controls outside the carriage handle's approach corridor.
+        box((.045, .025, .0435), (controls_x, -.24, TABLE_Z + .0435), (.20, .23, .25, 1)),
+        # The guide constrains the switch caps through the fascia opening.
+        box((.045, .025, .0075), (controls_x, -.24, TABLE_Z + .0945), (.28, .30, .32, 1), collision=False),
     ]
     carriage_shapes = [
         box((.092, .067, .006), (0., -.008, 0.), (.72, .74, .75, 1)),
@@ -141,7 +141,18 @@ def geometry():
     ]
     portion = body('portion', portion_shapes, .019, PORTION_START)
     machine_body = body('machine', machine_shapes, static=True)
-    workpiece = description('DeliSlicerWorkpiece', [machine_body, carriage, ham, portion], joints=[
+    switch_bodies = []
+    switch_joints = []
+    for name, position, color in (
+        ('power_on', POWER_ON, (.9, .91, .9, 1)),
+        ('power_off', POWER_OFF, (.82, .12, .10, 1)),
+    ):
+        # The visible cap moves into its housing along a spring-return guide.
+        switch_bodies.append(body(name, [cylinder(.011, .007, (0., 0., .004), color)], .025, position))
+        switch_joints.append(dict(name=name+'_guide', type='prismatic', parent='machine', child=name,
+            axis='Z', position_parent=position.tolist(), lower=-SWITCH_TRAVEL, upper=0.,
+            stiffness=300., damping=2., target=0., collision=False))
+    workpiece = description('DeliSlicerWorkpiece', [machine_body, carriage, ham, portion, *switch_bodies], joints=[
         # PhysX constrains the carriage to the slicer's real one-axis rail.
         dict(name='carriage_rail', type='prismatic', parent='machine', child='carriage', axis='X',
              position_parent=CARRIAGE_START.tolist(), position_child=[0., 0., 0.],
@@ -150,6 +161,7 @@ def geometry():
              position_parent=HAM_OFFSET.tolist(), position_child=[0., 0., 0.], collision=False),
         dict(name='cut_link', type='fixed', parent='carriage', child='portion',
              position_parent=PORTION_OFFSET.tolist(), position_child=[0., 0., 0.], collision=False),
+        *switch_joints,
     ], solver_position_iterations=48, solver_velocity_iterations=12)
 
     pocket_shapes = [

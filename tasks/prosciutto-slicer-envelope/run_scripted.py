@@ -85,7 +85,6 @@ def main():
             # recorded opening frames are settled and fully rendered.
             for _ in range(12):
                 emb._base.sim.render()
-        task.begin_episode()
         faulthandler.cancel_dump_traceback_later()
         print('Native reset complete: '+json.dumps(task.measurements()), flush=True)
         receipt.update(start_metrics=task.measurements(), physics_dt_s=emb._base.physics_dt,
