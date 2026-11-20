@@ -14,7 +14,7 @@ This local submission draft contains the Isaac Lab scripted prototype. It depict
 
 The robot, carriage, ham, released portion, catcher, and envelope flap use native Isaac Sim/PhysX rigid bodies and contacts. The blade rotation is visual. Button travel of 4 mm latches the native task power state. A geometric blade sweep releases a pre-modeled slice, with a release velocity representing the deflector. The simulation does not model deformation, fracture, cutting force or interlocks. The ham is fixed to the carriage and the envelope base is fixed to the table. The envelope flap is rigid with a hinge and a raised tab. These are simulator fixtures. There is no validated physical replica or real-trial procedure.
 
-The scene uses the calibrated YAM station tabletop directly. It does not add a second coplanar tabletop plate. The recorder produces separate `top-view.mp4` and `close-view.mp4` files at 1920 × 1080. The review copy places the synchronized top view on the left and the close view on the right.
+The scene uses the calibrated YAM station tabletop directly. It does not add a second coplanar tabletop plate. The recorder produces separate `top-view.mp4` and `close-view.mp4` files at 1920 × 1080. The review copy places the synchronized top view on the left and the close view on the right. The submitted Dream-1 recording is a 1920 × 1080 top view at 20 fps; the scripted demo is the synchronized top/close composite at 3840 × 1080 and 20 fps. Both are H.264 MP4 with `yuv420p`, and each is below the 50 MB limit.
 
 ## Native run
 
