@@ -26,11 +26,21 @@ export PYTHONPATH="$PWD"
 python run_scripted.py "$PWD/../prosciutto-slicer-run" --preview --max-steps 1400 --fps 20 --renderer RaytracedLighting
 ```
 
-The run uses 20 Hz control, 240 Hz CPU PhysX and GPU rendering. The two camera MP4s are written from the same native simulation run. Use `--physics-only` from the task folder for a diagnostic without camera recording. The demo uses fixed seed 0 at 20 Hz. The proposed evaluation limit is 1,400 control steps (70 s). The recorded native run uses this fixed layout and seed. The score appears in the final row of the trace and in `receipt.json`. The last row of `trace.jsonl` records the score and measured endpoint.
+The run uses 20 Hz control, 240 Hz CPU PhysX and GPU rendering. The two camera MP4s are written from the same native simulation run. Use `--physics-only` from the task folder for a diagnostic without camera recording. The demo uses fixed seed 0 at 20 Hz. The evaluation limit is 1,400 control steps (70 s). The recorded native run uses this fixed layout and seed. The score appears in the final row of the trace and in `receipt.json`. The last row of `trace.jsonl` records the score and measured endpoint.
 
 ```bash
 tail -n 1 /path/to/run/trace.jsonl | python3 -c 'import json, sys; row = json.load(sys.stdin); print(row["step"], row["metrics"]["score"])'
 ```
+
+## Run Dream-1
+
+With the same environment and configured Dream Labs credentials, install `inspect-robots-dream` and `dreamlabs-client`.
+
+```bash
+python run_scripted.py "$PWD/../prosciutto-dream-run" --policy dream --max-steps 1400 --fps 20 --renderer RaytracedLighting
+```
+
+This uses the fixed seed-0 reset, the instruction in `task.json` and the standard Inspect Robots action guardrails. The run writes one top-view MP4, the policy transcript, and the final native score. A trial ends at success or at the 1,400-step limit. The recorded Dream-1 trial reached the limit in about 11 minutes of wall-clock time on an RTX 3090 and scored 0.0. The slicer remained off and no slice was released. The native scripted demo scored 1.0.
 
 ## Score a trial
 

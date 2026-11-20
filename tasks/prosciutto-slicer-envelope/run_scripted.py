@@ -1,6 +1,7 @@
 """Record the native prosciutto slicing and packaging prototype."""
 import argparse
 import hashlib
+import importlib.metadata
 import importlib.util
 import json
 import os
@@ -22,12 +23,17 @@ def main():
     parser.add_argument('--max-steps', type=int, default=3600)
     parser.add_argument('--fps', type=int, choices=[10, 20], default=10)
     parser.add_argument('--samples', type=int, choices=[4, 8], default=4)
+    parser.add_argument('--policy', choices=['scripted', 'dream'], default='scripted')
     parser.add_argument('--renderer', choices=['PathTracing', 'RaytracedLighting'], default='PathTracing')
     parser.add_argument('--physics-only', action='store_true', help='Trace robot physics without camera capture')
     parser.add_argument('--free-reset', action='store_true', help='Diagnose settling without temporary supports')
     parser.add_argument('--preview', action='store_true',
                         help='Record the top and close views without policy wrist cameras')
     args = parser.parse_args()
+    dream = args.policy == 'dream'
+    if dream and (args.physics_only or args.preview or args.stop_after or args.free_reset):
+        parser.error('Dream-1 requires a complete trial with policy cameras and the scored reset')
+    model = 'dreamlabs/dream-1-beta'
     if min(args.width, args.height, args.max_steps) <= 0:
         parser.error('Positive dimensions and control budget required')
     output = args.output.resolve()
@@ -39,7 +45,9 @@ def main():
     shutil.copytree(folder, output/'source', ignore=shutil.ignore_patterns('__pycache__'))
     receipt = dict(status='starting', scope='Native Isaac Lab trial with simulated blade and packing scoring',
         hostname=socket.gethostname(), resolution_per_camera=[args.width, args.height],
-        camera_files=['top-view.mp4', 'close-view.mp4'], control_hz=20, video_hz=args.fps,
+        camera_files=['top-view.mp4'] if dream else ['top-view.mp4', 'close-view.mp4'],
+        policy=args.policy, model=model if dream else None, max_steps=args.max_steps,
+        control_hz=20, video_hz=args.fps,
         renderer=args.renderer, pathtracing_samples=args.samples,
         physics_only=args.physics_only, free_reset=args.free_reset,
         preview=args.preview, seed=0,
@@ -50,7 +58,7 @@ def main():
                        for p in (output/'source').rglob('*') if p.is_file()})
     started = time.monotonic()
     (output/'receipt.json').write_text(json.dumps(receipt, indent=2)+'\n')
-    emb, videos, task = None, {}, None
+    emb, videos, task, policy = None, {}, None, None
     steps, phase = 0, ''
     try:
         import faulthandler
@@ -70,9 +78,11 @@ def main():
         task.preview = args.preview
         task.render_hz, task.render_samples, task.renderer = args.fps, args.samples, args.renderer
         print('Initializing native station, physics and camera renderers', flush=True)
-        emb.reset(Scene(id=getattr(emb._mechanism, 'scene_id', 'native-scripted-prototype'),
+        scene = Scene(id=getattr(emb._mechanism, 'scene_id', 'native-scripted-prototype'),
             instruction=getattr(emb._mechanism, 'instruction',
-                'Complete the prepared scripted manipulation and leave the objects in their final layout.')), seed=0)
+                'Complete the prepared scripted manipulation and leave the objects in their final layout.'))
+        observation = emb.reset(scene, seed=0)
+        receipt['instruction'] = scene.instruction
         import signal
         def stop_requested(signum, frame):
             raise KeyboardInterrupt('Native recording interrupted')
@@ -94,8 +104,8 @@ def main():
         def save_frames(prefix):
             if args.physics_only:
                 return
-            cameras = ('top_cam', 'close_cam')
-            if not args.preview:
+            cameras = ('top_cam',) if dream else ('top_cam', 'close_cam')
+            if not dream and not args.preview:
                 cameras += ('overview_cam', 'left_cam', 'right_cam')
             for name in cameras:
                 cv2.imwrite(str(output/(prefix+'-'+name+'.png')), cv2.cvtColor(frame(name), cv2.COLOR_RGB2BGR))
@@ -106,13 +116,42 @@ def main():
 
         save_frames('setup')
         if not args.physics_only:
-            for camera, filename in [('top_cam', 'top-view.mp4'), ('close_cam', 'close-view.mp4')]:
+            cameras = [('top_cam', 'top-view.mp4')]
+            if not dream:
+                cameras.append(('close_cam', 'close-view.mp4'))
+            for camera, filename in cameras:
                 videos[camera] = subprocess.Popen(['ffmpeg', '-nostdin', '-loglevel', 'error', '-f', 'rawvideo',
                     '-pixel_format', 'rgb24', '-video_size', f'{args.width}x{args.height}', '-framerate', str(args.fps),
                     '-i', 'pipe:0', '-an', '-c:v', 'libx264', '-threads', '2', '-preset', 'fast',
                     '-crf', '21', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
                     str(output/filename)], stdin=subprocess.PIPE)
-        if args.stop_after == 'setup':
+        if dream:
+            from inspect_robots.cli import _build_guardrails
+            from inspect_robots_dream import DreamPolicy
+
+            policy = DreamPolicy(model=model, record=False, timeout_s=300.)
+            policy.bind(emb.info)
+            policy.reset(scene)
+            approver, active, notices = _build_guardrails(emb.info.action_space, None, emb)
+            receipt.update(guardrails=active, guardrail_notices=notices,
+                           policy_versions={name: importlib.metadata.version(name) for name in
+                                            ('inspect-robots', 'inspect-robots-dream', 'dreamlabs-client')})
+            guard_store = {}
+
+            def dream_actions():
+                for _ in range(args.max_steps):
+                    sent = time.monotonic()
+                    raw = policy.act(observation).actions[0]
+                    approved = approver.review(raw, guard_store)
+                    values = np.asarray(approved.data)
+                    if values.shape != (14,) or not np.isfinite(values).all():
+                        raise RuntimeError('Invalid Dream-1 action after guardrails')
+                    yield values, 'dream', dict(raw_action=np.asarray(raw.data).tolist(),
+                                                 approval_meta=dict(approved.meta),
+                                                 policy_wall_seconds=time.monotonic() - sent)
+
+            actions = dream_actions()
+        elif args.stop_after == 'setup':
             actions = ((task.initial_action(), 'settled_setup', {}) for _ in range(20))
         else:
             name = module.__name__+'.interaction'
@@ -132,7 +171,9 @@ def main():
                         dtype=emb._torch.float32).unsqueeze(0))
                     metrics = task.evaluate(emb._base)
                 else:
-                    metrics = dict(emb.step(Action(data=action)).info)
+                    result = emb.step(Action(data=action))
+                    metrics = dict(result.info)
+                    observation = result.observation
                 steps += 1
                 tracked = task.trace_objects() if callable(getattr(task, 'trace_objects', None)) else {
                     'beakers': {name: [x.tolist() for x in task.native(name)] for name in ('source', 'rinse')}}
@@ -143,6 +184,11 @@ def main():
                     print(json.dumps(dict(step=steps, **task.measurements())), flush=True)
                 if videos and steps % (20//args.fps) == 0:
                     record()
+                if dream and result.terminated:
+                    receipt['termination'] = result.termination_reason
+                    break
+        if dream:
+            receipt.setdefault('termination', 'control_budget')
         save_frames('final')
         receipt.update(status='completed_prototype_checkpoint' if args.stop_after else 'completed_prototype',
                        final_metrics=task.measurements(), score=metrics['score'], steps=steps, phase=phase)
@@ -167,6 +213,15 @@ def main():
                 save_frames('interrupted')
             except Exception as error:
                 receipt['interrupted_capture_error'] = repr(error)
+        if policy is not None:
+            try:
+                (output/'dream-transcript.json').write_text(json.dumps(policy.transcript(), indent=2)+'\n')
+            except Exception as error:
+                receipt['transcript_error'] = repr(error)
+            try:
+                policy.close()
+            except Exception as error:
+                receipt['policy_close_error'] = repr(error)
         video_errors = []
         for camera, video in videos.items():
             video.stdin.close()
