@@ -28,10 +28,18 @@ ISAAC_PY=/media/nvme/rbasti/isaaclab-arena-runtime/source/.venv/bin/python
 "$ISAAC_PY" run_scripted.py /media/nvme/rbasti/isaaclab-arena-runtime/outputs/prosciutto-slicer-new --preview --max-steps 1400 --fps 20 --renderer RaytracedLighting
 ```
 
-The run uses 20 Hz control, 240 Hz CPU PhysX and GPU rendering. The two camera MP4s are written from the same native simulation run. Use `--physics-only` from the task folder for a diagnostic without camera recording. The demo uses fixed seed 0 at 20 Hz. The proposed evaluation limit is 1,400 control steps (70 s). The native controls demo reached 1.0 at step 1,360 (68 s). The last row of `trace.jsonl` records the score and measured endpoint.
+The run uses 20 Hz control, 240 Hz CPU PhysX and GPU rendering. The two camera MP4s are written from the same native simulation run. Use `--physics-only` from the task folder for a diagnostic without camera recording. The demo uses fixed seed 0 at 20 Hz. The proposed evaluation limit is 1,400 control steps (70 s). The recorded native run uses this fixed layout and seed. The score appears in the final row of the trace and in `receipt.json`. The last row of `trace.jsonl` records the score and measured endpoint.
 
 ```bash
 tail -n 1 /path/to/run/trace.jsonl | python3 -c 'import json, sys; row = json.load(sys.stdin); print(row["step"], row["metrics"]["score"])'
 ```
 
-Scripted and policy-driven actions now use the same power and slice-release logic. The scorer checks a stopped blade, the slice center in the envelope and the flap angle. Full arm and fingertip clearance checks, whole-slice containment and release checks still need validation before submission. The existing side-by-side video documents the earlier prototype and must be refreshed for a submission.
+## Score a trial
+
+Both robot entry points use the same task scorer. A blade incursion latches zero for the trial. At every 240 Hz physics substep, use the world-aligned bounds of each YAM URDF collision hull, including the fingertips. The check conservatively treats the whole blade disk as off limits, with a 2 mm margin. It stays active with the motor off. At 20 Hz, also check that the remaining ham stays behind the feed face and the separated slice stays out of the guard zone.
+
+Full credit requires all completion conditions to hold for one second. The motor must be stopped after actual release of a slice by a powered carriage pass. The entire slice collision box must fit within the envelope interior, with 0.5 mm tolerance. The slice must be separated by at least 5 mm from the arm hull bounds and below 10 mm/s linear speed and 0.20 rad/s angular speed. The flap must be within 10 degrees of flat and turn no faster than 0.20 rad/s. A correct endpoint can be inspected using the motor state, the released portion and the flap position. The trace contains the native measurements.
+
+## Equipment reference
+
+Use the Berkel Home Line Plus 200 as a reference for the mechanism. Its data sheet gives a 195 mm blade and a 0–18 mm thickness range. The manual shows the product holder, guard, gauge plate and separate start and stop controls. The simulated 200 mm blade, 73.5 mm rail travel, 8 mm button travel and catcher dimensions are authored replica dimensions. The model has no functioning gauge plate. A guarded inert physical trainer preserving the carriage, pusher, gauge and safe slice exit has yet to be built and validated. [Berkel data sheet](https://s3.eu-west-1.amazonaws.com/berkel-s3/Manuali/HL-PLUS-200-250-data-sheet.pdf), [Berkel manual](https://s3.eu-west-1.amazonaws.com/berkel-s3/Manuali/manuale-home-line-plus-2022.pdf#page=14).

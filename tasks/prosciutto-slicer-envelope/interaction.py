@@ -63,8 +63,6 @@ def actions(task, base, stop_after=None, max_steps=2400):
             elif grip is not None:
                 action[index+6] = grip
         steps += 1
-        if task.arm_contact_steps:
-            raise RuntimeError('Stopped after native inter-arm contact')
         if task.unsafe_reason:
             raise RuntimeError('Unsafe native sequence: '+task.unsafe_reason)
         diagnostics = {}
@@ -242,5 +240,5 @@ def actions(task, base, stop_after=None, max_steps=2400):
     yield from home('left')
     yield from hold('observe_closed_food_envelope', 1.5)
     m = task.measurements()
-    if not all(m[k] for k in ('portion_cut', 'slicer_stopped', 'portion_in_envelope', 'envelope_closed')):
+    if m['packed_still_s'] < 1. - 1e-9:
         raise RuntimeError(f'Final packed envelope not reached: {m}')

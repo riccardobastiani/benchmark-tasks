@@ -39,7 +39,7 @@ def main():
     module, _ = _task_module(folder)
     module.geometry()
     shutil.copytree(folder, output/'source', ignore=shutil.ignore_patterns('__pycache__'))
-    receipt = dict(status='starting', scope='Native mechanics prototype; no calibrated task score',
+    receipt = dict(status='starting', scope='Native Isaac Lab trial with simulated blade and packing scoring',
         hostname=socket.gethostname(), resolution_per_camera=[args.width, args.height],
         camera_files=['top-view.mp4', 'close-view.mp4'], control_hz=20, video_hz=args.fps,
         renderer=args.renderer, pathtracing_samples=args.samples,
@@ -147,7 +147,7 @@ def main():
                     record()
         save_frames('final')
         receipt.update(status='completed_prototype_checkpoint' if args.stop_after else 'completed_prototype',
-                       final_metrics=task.measurements(), steps=steps, phase=phase)
+                       final_metrics=task.measurements(), score=metrics['score'], steps=steps, phase=phase)
     except BaseException:
         receipt.update(status='error', error=traceback.format_exc(), steps=steps, phase=phase)
         if task is not None and getattr(task, 'active', False):
