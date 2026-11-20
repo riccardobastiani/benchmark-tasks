@@ -18,14 +18,12 @@ The scene uses the calibrated YAM station tabletop directly. It does not add a s
 
 ## Native run
 
-Use the installed Isaac Lab environment on verified `visnu`, with the existing accepted NVIDIA terms. Store output and caches on NVMe. From this task folder:
+Activate an Isaac Lab-Arena Python environment with the YAM station and Inspect Robots installed. The local validation used Arena `c7edf3a9` and Isaac Lab `91a0906f9`. Set `OMNI_KIT_ACCEPT_EULA=YES` in the environment after accepting the NVIDIA terms. From this task folder:
 
 ```bash
-export CUDA_VISIBLE_DEVICES=0 OPENBLAS_NUM_THREADS=1 OMNI_KIT_ACCEPT_EULA=YES
-export XDG_CACHE_HOME=/media/nvme/rbasti/isaaclab-arena-runtime/xdg-cache
+export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1
 export PYTHONPATH="$PWD"
-ISAAC_PY=/media/nvme/rbasti/isaaclab-arena-runtime/source/.venv/bin/python
-"$ISAAC_PY" run_scripted.py /media/nvme/rbasti/isaaclab-arena-runtime/outputs/prosciutto-slicer-new --preview --max-steps 1400 --fps 20 --renderer RaytracedLighting
+python run_scripted.py "$PWD/../prosciutto-slicer-run" --preview --max-steps 1400 --fps 20 --renderer RaytracedLighting
 ```
 
 The run uses 20 Hz control, 240 Hz CPU PhysX and GPU rendering. The two camera MP4s are written from the same native simulation run. Use `--physics-only` from the task folder for a diagnostic without camera recording. The demo uses fixed seed 0 at 20 Hz. The proposed evaluation limit is 1,400 control steps (70 s). The recorded native run uses this fixed layout and seed. The score appears in the final row of the trace and in `receipt.json`. The last row of `trace.jsonl` records the score and measured endpoint.

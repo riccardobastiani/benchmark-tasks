@@ -26,10 +26,8 @@ def main():
     parser.add_argument('--physics-only', action='store_true', help='Trace robot physics without camera capture')
     parser.add_argument('--free-reset', action='store_true', help='Diagnose settling without temporary supports')
     parser.add_argument('--preview', action='store_true',
-                        help='Continue the unscored video through suspension loss')
+                        help='Record the top and close views without policy wrist cameras')
     args = parser.parse_args()
-    if socket.gethostname() != 'visnu':
-        parser.error('Run native physics on verified visnu')
     if min(args.width, args.height, args.max_steps) <= 0:
         parser.error('Positive dimensions and control budget required')
     output = args.output.resolve()
