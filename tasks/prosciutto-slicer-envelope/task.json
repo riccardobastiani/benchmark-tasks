@@ -15,5 +15,6 @@
   "run_limit": "1,400 steps (70 s at 20 Hz)",
   "reset_notes": "Use seed 0 with fixed poses. Start with the blade stopped, carriage at the start stop, the whole ham in the carriage, and an empty envelope with its flap upright.",
   "fidelity": "PhysX models the button, carriage, catcher, gripper and flap contacts. A geometric powered sweep releases a pre-modeled rigid slice with a deflector impulse. The ham is fixed to the carriage and the envelope has a rigid hinged flap. The scorer uses conservative bounds around YAM collision hulls. Blade rotation is visual. A working gauge plate, cutting force, food deformation and interlocks are omitted.",
-  "scores": "Dream-1 run: 0.0; scripted demo: 1.0."
+  "scores": "Dream-1 run: 0.0; scripted demo: 1.0.",
+  "media": "M-AR39XG"
 }
