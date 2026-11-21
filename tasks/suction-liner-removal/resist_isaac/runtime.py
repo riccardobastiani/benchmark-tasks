@@ -114,6 +114,7 @@ class ResistanceEmbodiment(YamArenaEmbodiment):
                 headless=self.headless,
                 device=self.device,
                 enable_cameras=True,
+                kit_args=os.environ.get("ROBOCURVE_KIT_ARGS", ""),
             )
             if not self.headless:
                 launch["visualizer"] = ["kit"]

@@ -347,7 +347,7 @@ def clear_plastic(path, data):
                 prim = stage.GetPrimAtPath(f"{root}/Materials/{part['name']}_{i:03d}")
                 material = PhysxSchema.PhysxMaterialAPI.Apply(prim)
                 # ponytail: lumped contact spring; calibrate from bench forces when available.
-                material.CreateCompliantContactStiffnessAttr(250.0)
+                material.CreateCompliantContactStiffnessAttr(2500.0)
                 material.CreateCompliantContactDampingAttr(.3)
                 material.CreateCompliantContactAccelerationSpringAttr(False)
             if shape['type'] == 'mesh' and not shape.get('collision',True):

@@ -4,6 +4,7 @@ import hashlib
 import importlib.metadata
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import socket
@@ -66,6 +67,9 @@ def main():
         instruction = config['instruction']
         scene = Scene(id='suction-liner-removal',instruction=instruction)
         observation = emb.reset(scene,seed=0)
+        import carb.settings
+        receipt['native_render_gpu'] = carb.settings.get_settings().get('/renderer/activeGpu')
+        receipt['cuda_visible_devices'] = os.environ.get('CUDA_VISIBLE_DEVICES')
         task.begin_episode()
         cameras = ('top_cam','close_cam','overview_cam')
         receipt.update(physics_dt_s=emb._base.physics_dt,control_dt_s=emb._base.step_dt,
@@ -176,6 +180,16 @@ def main():
             task.close()
         if emb is not None:
             emb.close()
+        changed = []
+        for relative, expected in receipt['source_sha256'].items():
+            live = folder / relative
+            if not live.is_file() and relative.startswith('resist_isaac/'):
+                live = folder.parent.parent / relative
+            if not live.is_file() or hashlib.sha256(live.read_bytes()).hexdigest() != expected:
+                changed.append(relative)
+        receipt['source_unchanged'] = not changed
+        if changed:
+            receipt.update(status='error',source_changed_files=changed)
         receipt['wall_seconds']=time.monotonic()-started
         (output/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
         print(json.dumps(dict(status=receipt['status'],steps=steps,phase=phase,metrics=last)),flush=True)

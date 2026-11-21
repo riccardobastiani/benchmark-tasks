@@ -180,8 +180,12 @@ def actions(task, base, stop_after=None, max_steps=3600, lid_only=False):
                 action[index+6] = starts[side][2]+s*(1-starts[side][2])
             yield from emit('release_liner_inside_receiver')
         for side in ('left','right'):
-            p,r,_ = starts[side]
-            delta = -.040*r[:,2]+[0,.120 if side=='left' else -.120,.030]
+            # The load is gone: discard its integral correction and retreat
+            # laterally from the measured unloaded pose, above the receiver rim.
+            position_bias[side] = np.zeros(3)
+            rotation_bias[side] = np.eye(3)
+            p,r = actual_pose(side)
+            delta = np.array([0.,.120 if side=='left' else -.120,0.])
             yield from move('clear_released_liner_'+side,side,p+delta,r,1.,1.5)
 
     def close_bin():
@@ -240,6 +244,24 @@ def actions(task, base, stop_after=None, max_steps=3600, lid_only=False):
     yield from hold('verify_seated_closure',.6)
     yield from release('left','closure')
     yield from hold('verify_released_closure',.7)
+    if not task.measurements()['cap_seated']:
+        # Press the flange from above: a side pinch transmits axial load only
+        # through pad friction and previously left the lip above the insert.
+        press_rotation = frame(70)
+        # Pinned YAM fingertip colliders extend 13 mm beyond the nominal TCP.
+        press = closure_target()+[0,0,.003-.004]-.013*press_rotation[:,2]
+        above = press+[0,0,.025]
+        yield from move('approach_closure_flange_press','left',above,press_rotation,0.,2.)
+        begin,_ = actual_pose('left')
+        for tick in range(120):
+            s = ik.smoothstep((tick+1)/120)
+            yield from emit('press_closure_flange','left',begin+s*(press-begin),
+                            press_rotation,0.)
+            m = task.measurements()
+            if m['cap_seat_gap_m'] < .0005 and m['cap_radial_error_m'] < .0012 and m['cap_up'] > .99:
+                break
+        yield from move('withdraw_closure_flange_press','left',above,press_rotation,0.,1.5)
+        yield from hold('verify_closure_after_flange_press',2.)
     if not task.measurements()['cap_seated']:
         raise RuntimeError('Closure did not remain seated after release')
     yield from park('left')

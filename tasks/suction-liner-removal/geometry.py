@@ -256,6 +256,9 @@ def geometry():
                           cylinder(.0076, .001, (0,0,-.004), rubber),
                           cylinder(.008, .00235, (0,0,-.00715), rubber)], .008, cap_position)
     cap['shapes'][-1] = cap_lip(rubber)
+    # Thin seating witness mark; visual only, hidden by the insert when seated.
+    cap['shapes'].append(cylinder(.00765, .00025, (0,0,-.004),
+                                (.98,.70,.06,1), collision=False))
     parts, joints = [part, cap], []
     # Small passive jointed tether; it does not attach the cap to the gripper or seat it.
     start, end = LID + [-.060,-.010,.008], cap_position + [.010,0,0]

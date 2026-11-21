@@ -1,0 +1,152 @@
+{
+  "revision": "Revised 16 mm trainer closure; replaces the historical 18 mm-port media",
+  "scope": "Actual native Isaac execution; not physical bench validation",
+  "physics_hz": 240,
+  "control_hz": 20,
+  "source_unchanged_during_both_runs": true,
+  "initial_state_max_absolute_delta": 0.0,
+  "same_source_assets_and_instruction": true,
+  "demo": {
+    "run": "revision-20261121-demo-1080p-12",
+    "policy": "scripted",
+    "status": "completed",
+    "score": 1.0,
+    "steps": 3089,
+    "resolution": [
+      1920,
+      1080
+    ],
+    "retained_physics_samples": 20777,
+    "retention_violations": 0,
+    "retained_gap_range_mm": [
+      -0.0031850785017009664,
+      0.038797080516815574
+    ],
+    "released_final_gap_mm": -0.0004805177450176168,
+    "videos": {
+      "top_cam": {
+        "sha256": "dde79f7dfeb7404eab95775f577693b31309c072b277716d5e1183d23ef204a2",
+        "frames": 3090,
+        "bytes": 23311422
+      },
+      "close_cam": {
+        "sha256": "9f266519e0ed8cc7514a4c00b3f9b71d4ea449bc2fbab13e20609e20d490d450",
+        "frames": 3090,
+        "bytes": 21110292
+      },
+      "overview_cam": {
+        "sha256": "cd378107258418d313edf436b055e0f7b8367c483e2496159b631a1932864627",
+        "frames": 3090,
+        "bytes": 19614975
+      }
+    },
+    "scope": "Native revised trainer evidence; not physical bench validation"
+  },
+  "dream": {
+    "run": "revision-20261121-dream-1080p-13",
+    "policy": "dream",
+    "status": "completed",
+    "score": 0.0,
+    "steps": 3600,
+    "resolution": [
+      1920,
+      1080
+    ],
+    "retained_physics_samples": 0,
+    "retention_violations": 0,
+    "retained_gap_range_mm": null,
+    "released_final_gap_mm": -10.502510659396648,
+    "videos": {
+      "top_cam": {
+        "sha256": "d7b9724053e38060d81030227a1d5a5885e3712930d91dcfb536550da59e8ff0",
+        "frames": 3601,
+        "bytes": 20439897
+      },
+      "close_cam": {
+        "sha256": "b267e49b4b85c5c5db9a8d10e390f4ce4b986eb8822d71689372f063fa4e4e0a",
+        "frames": 3601,
+        "bytes": 15238449
+      },
+      "overview_cam": {
+        "sha256": "67c9a49d42d62e0f6d75c4b032038d5437e753a7639cd6bd195c231df9c2c2d8",
+        "frames": 3601,
+        "bytes": 18740924
+      }
+    },
+    "scope": "Native revised trainer evidence; not physical bench validation"
+  },
+  "dream_service": {
+    "dream_chunks": 75,
+    "dream_api_attempts": 150,
+    "dream_server_sessions": 75,
+    "retry_reasons": {
+      "Dream: expired": 75
+    }
+  },
+  "close_frames": [
+    {
+      "name": "seated",
+      "step": 1143,
+      "gap_mm": 8.386373519936319e-05,
+      "radial_mm": 0.3810885537642086,
+      "file": "evidence/closure-seated.png",
+      "sha256": "bb1f549921409c909976c0ccad5f7f75864ade9f3d6c87514f68e635a66a2668",
+      "source_camera": "close_cam",
+      "source_video_sha256": "9f266519e0ed8cc7514a4c00b3f9b71d4ea449bc2fbab13e20609e20d490d450"
+    },
+    {
+      "name": "carried",
+      "step": 2123,
+      "gap_mm": 0.0014659464359287333,
+      "radial_mm": 0.3272938641655252,
+      "file": "evidence/closure-carried.png",
+      "sha256": "a503f8baeaaab1c07eabe213a361ce54ffc29e269fbf0868ce491079a8e8e6a4",
+      "source_camera": "close_cam",
+      "source_video_sha256": "9f266519e0ed8cc7514a4c00b3f9b71d4ea449bc2fbab13e20609e20d490d450"
+    },
+    {
+      "name": "disposed",
+      "step": 2479,
+      "gap_mm": -0.0004805177450176168,
+      "radial_mm": 0.1630288688807645,
+      "file": "evidence/closure-disposed.png",
+      "sha256": "77a2446c393329a9199ca5c06548dc1d363a7a06d985578cab4f86bac337da0f",
+      "source_camera": "close_cam",
+      "source_video_sha256": "9f266519e0ed8cc7514a4c00b3f9b71d4ea449bc2fbab13e20609e20d490d450"
+    }
+  ],
+  "execution_source_sha256": {
+    "geometry.py": "7a83600f81b982c17e494222e8d51d002f14ff5afd4e45b9f862f6ef33700c29",
+    "preview.py": "e7b388d0bc8af262a0c83818fb68cbc557d4b07c6a5ab180d3eb38877af6693b",
+    "verify_recording.py": "f2fea717d6fbf5ca8d8e93fb39ab4233d6d33f12d644d3d15270b988ad59035b",
+    "interaction.py": "c245802c4f78c8271ee2528237e3cf53d19d0ff4223a2756355d71bd0f7753b9",
+    "DESIGN.md": "e698bc34bdce948cedc3918a17666bc43e87f96693d6baec418a875c5759feee",
+    "run_scripted.py": "e7c955bcd51e1fcf590b061c5e570295fac50af2aa6c2149e066b982291c1b4b",
+    "SOURCES.md": "d5011ed954023c8e3216226ca2686e8824164bd7047bd97e9ad8464e3cde7b8a",
+    "pilot.json": "e6cd59466002358fb94eaaf6c7216d89b4e26c162cfe623d48ace8b9c22316fe",
+    "pyproject.toml": "f65afa0b86cccf56c2a2f79d663e35e763629b009795e06dc9bf56b11a615782",
+    "task.json": "9a162234f6fd9a9710525c24dcdccbc7c1041079087d5872066aee0bb5d28c6e",
+    "LICENSE": "c4155ae5e99236f704ed0e168e6c0ca0b09156546ef173ec3cea718c49da1d2d",
+    "task.py": "6bfaabd25d8c67b6890a21ed0394a92f4ca9d4f5f1eb9d05bf55b7c560d3c4a7",
+    "test_rules.py": "f848c8658ffe89cd1d35e5c664bb0655a72aed1752ce96ce07214cceb1a9abf7",
+    ".gitignore": "1baa34c91a89072d2f7aed206e93410fa8572c214e02e31a880605e49d46abd8",
+    "README.md": "e6bb1e9dee9be0834832efe8ec7067537b02a2cfc1fee543edac58906003561c",
+    "assets/CLINICAL_WASTE.png": "6a40abb90b2654a5a847abcb6318d67be580f37551e4ef95dcb032cb9dd857da",
+    "assets/SEALED_LINERS_ONLY.png": "2f0da0a337b62cffbb166e0f5f44b9c66299771864be160913de951e93d038fc",
+    "assets/ON.png": "3493c12ad42bd85a2e5a8f0637edc6ea80cf82f42de3050a4e59595041cc764f",
+    "assets/VACUUM.png": "449c2de7b19dc06e50251dd37f81146dbf3f7f771e45857882d8d3de857c0ecd",
+    "assets/OFF.png": "1a95dee6bbd1a7a6e8c9712c0b8329ad9b8ae2e7e63479f6cb8c6aae0de688d5",
+    "assets/INFECTIOUS_WASTE.png": "401832fafd10c2f1af9e32e2d4f8eb45b4cd1b7faf78f77f58823fd27bd1fc24",
+    "assets/USED_SUCTION_LINER.png": "f5121849121af0ab8f2e57d39c01d8b876988d9395a8e04be312cc8d175cf95f",
+    "assets/_.png": "83a5ee0ca25f6014098ecff56e08b0b4083a7704f0bf8c8a8b950a82c313f642",
+    "resist_isaac/usd_assets.py": "1a63a15015d09865470b90f9ff2102e2742fa376da598ab3a1f433c1bcdce0b3",
+    "resist_isaac/recovery.py": "edfc017a89974eb5df1e58b57b5e9ebfa5ad925010f952620f69fa2babc55bde",
+    "resist_isaac/__init__.py": "ed18fdcd2a9d169b9c4a2739ba20805f3a2838cd222fc22c0d61c7bb63ef2e84",
+    "resist_isaac/state.py": "9ebf40d1469ca02ff354400dacebe6b20d17d4ff411605bac479c677c65bd384",
+    "resist_isaac/runtime.py": "69949f7f0916ba04a0fae63900a468298365f935d593add7bb7bf4e2842868e8"
+  },
+  "media_id": "M-WUEF6C",
+  "primary_demo_camera": "top_cam",
+  "primary_model_camera": "top_cam",
+  "setup_screenshot": "Model-reset top view"
+}
