@@ -1,0 +1,20 @@
+{
+  "title": "Place six EEG cup electrodes on a mannequin scalp",
+  "category": "Other",
+  "keywords": [
+    "EEG",
+    "cup electrodes",
+    "surface contact",
+    "mannequin",
+    "bimanual"
+  ],
+  "instruction": "Place the six EEG electrodes on the mannequin in the order shown on the card.",
+  "context": "A fixed-layout robotics training prototype for placing labeled cup-style scalp sensors and releasing them in contact. It evaluates placement and sequence, not a diagnostic EEG examination or autonomous clinical safety.",
+  "setup": "Fixed seed-0 native Isaac Lab scene. World coordinates in mm: x forward, y left, z up; retain the station world origin, not the relocated arm midpoint. Wooden-style tabletop 1100 x 1300 x 60, top z=747.5. Task construction datum z=750. Two YAM bases at (200,+205,750) and (200,-205,750), 410 apart, grippers initially open in ready pose. Fixed skin-tone polymer-style ellipsoid head centered (440,0,850), principal diameters 240 x 255 x 188, with ears, nose and small eye landmarks on a fixed cylindrical stand; bare scalp with no target pads, rails or sockets. Six loose 4 g rigid assemblies: 10 mm diameter x 3 mm metal-style cup, 12 mm diameter x 2 mm cream paste proxy, colored connector/grasp tab up to 8 mm diameter and 16.5 mm cup/connector height above paste, 1.8 mm diameter x approximately 28 mm rigid lead stub. Cup-center starts: Fp1/red (245,190,757.5), Fp2/blue (245,-190,757.5), C3/yellow (310,190,757.5), C4/green (310,-190,757.5), O1/white (375,190,757.5), O2/black (375,-190,757.5). Two fixed gray staging mats 224 x 108 x 4 centered (310,+/-190,752), with outer raised lips. A fixed off-white order card 172 x 156 x 4 at (600,205,754) shows Fp1,Fp2,C3,C4,O1,O2 with task-specific colors. Target x,y: (377.6,+/-32), (440,+/-90), (502.4,+/-47.8); target cup-center z is the upper ellipsoid surface plus 3.5 mm. Exact fixture shapes, inertias and target formula are in geometry.py and SETUP.md. These are training proxies; material appearance does not imply tissue or paste mechanics.",
+  "scoring": "At each 20 Hz control step, an eligible placement requires the electrode to have a scalp-contact paste bond, cup-center error <=14 mm, and six position samples with displacement <=10 mm from the oldest sample; this condition must persist for >=0.25 s. First eligible placement times are latched. Let N be the current eligible count and P the prefix matching Fp1,Fp2,C3,C4,O1,O2 in chronological first-placement order. Score=min(0.6*N/6+0.4*P/6,0.999) unless N=P=6 and both TCPs are >=200 mm horizontally from (430,0) and at z>=870 mm. Full score 1.0 requires that endpoint for 20 consecutive control steps (1 s). No placements/events scores 0. Incorrect or missing placements get no current placement credit; historical prefix credit remains if a placement is later lost. Either arm may place any cup. No separate score penalties measure contact force, head/arm collisions or cable handling. Non-finite native states raise an error; they are not scored as successful trials.",
+  "run_limit": "3,000 control steps (150 s at 20 Hz)",
+  "reset_notes": "Seed 0, no jitter. Remove every paste bond, restore all six electrodes to the staging poses, clear placement history and restore both arms open in the ready pose. The supplied recorder creates a fresh native scene per trial. Repeated reset after a completed run has not been separately verified. No consumed fluids or real biological material.",
+  "fidelity": "Native PhysX cups and gripper contacts on an enlarged rigid ellipsoid head; labels use a fixed training layout, not measured clinical 10-20 sites. The connector is enlarged for YAM fingertips; leads are short rigid stubs. Paste is a rigid visual pad plus an ideal contact-triggered fixed bond without pull-off or peeling. No skin preparation, flexible cables, impedance, signal quality, pressure limits or clinical safety validation. Arm bases are 410 mm apart.",
+  "scores": "Dream-1 run: 0.0; scripted demo: 1.0.",
+  "media": "M-HY4TM8"
+}
