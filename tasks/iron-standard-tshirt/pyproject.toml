@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "resist-isaac"
+version = "0.1.0"
+description = "Native articulated resistance tasks for Isaac Lab-Arena"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "inspect-robots==0.60.0",
+  "Pillow==12.3.0",
+  "yam-arena @ git+https://github.com/kairosiann/yam-isaac-lab-arena.git@bd62771e60320433893bd1d2df0fc79b5ddcd6d1",
+]
+
+[project.optional-dependencies]
+dream = [
+  "inspect-robots-dream @ git+https://github.com/kairosiann/inspect-robots-dream.git@b5e936a201cec66c54c297e522c920d98445e339",
+  "dreamlabs-client==1.1.3",
+]
+
+[project.entry-points."inspect_robots.embodiments"]
+resist_isaac = "resist_isaac:embodiment"
+
+[tool.setuptools.packages.find]
+include = ["resist_isaac*"]
