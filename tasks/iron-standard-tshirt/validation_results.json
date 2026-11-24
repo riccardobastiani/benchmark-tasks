@@ -1,77 +1,24 @@
 {
-  "scope": "Cold mechanical pressing of the right front crease strip",
-  "videos": {
-    "demo": {
-      "codec_name": "h264",
-      "width": 1920,
-      "height": 1080,
-      "pix_fmt": "yuv420p",
-      "avg_frame_rate": "20/1",
-      "nb_read_frames": "1230",
-      "size_bytes": 8537417,
-      "sha256": "16af29e7741a037084638964f1a857bcab42b486f5116cb25bf69524749d2774"
-    },
-    "dream": {
-      "codec_name": "h264",
-      "width": 1920,
-      "height": 1080,
-      "pix_fmt": "yuv420p",
-      "avg_frame_rate": "20/1",
-      "nb_read_frames": "1601",
-      "size_bytes": 9354775,
-      "sha256": "fce5de0677ff432146c6dff99865ab115c8bc1b7e90c690bcc1041f021e92aa3"
-    }
-  },
+  "media": "M-ADCDTA",
   "trials": {
     "demo": {
       "score": 1.0,
-      "steps": 1229,
-      "wall_seconds": 1502.5465070169885,
-      "initial_native_cloth_difference_mm": 0.0,
-      "initial_native_cloth_p99_difference_mm": 0.0,
-      "source_unchanged": true,
+      "steps": 1637,
+      "wall_seconds": 639.4,
       "render_flags": [],
-      "final_bridge_gaps_mm": [
-        1.6122500896453857,
-        1.499165415763855,
-        1.7401145696640015,
-        1.4798377752304077,
-        1.5620627403259277
-      ]
-    },
-    "hover": {
-      "score": 0.0,
-      "steps": 1229,
-      "wall_seconds": 1426.6808865300845,
-      "initial_native_cloth_difference_mm": 3.5329461097717285,
-      "initial_native_cloth_p99_difference_mm": 0.448612030595541,
-      "source_unchanged": true,
-      "render_flags": [],
-      "final_bridge_gaps_mm": [
-        1.8542349338531494,
-        2.7792277336120605,
-        2.406092882156372,
-        1.949398159980774,
-        2.435621976852417
-      ]
+      "video_sha256": "cc237f6ff8611e5af0d2bb56f5921531058150977db7fea550e73b9b218ed70d"
     },
     "dream": {
       "score": 0.0,
-      "steps": 1600,
-      "wall_seconds": 1900.9658515439369,
-      "initial_native_cloth_difference_mm": 3.1127333641052246,
-      "initial_native_cloth_p99_difference_mm": 0.37137814797461033,
-      "source_unchanged": true,
+      "steps": 1800,
+      "wall_seconds": 709.3,
       "render_flags": [],
-      "final_bridge_gaps_mm": [
-        1.8103245496749878,
-        2.5311295986175537,
-        2.1321866512298584,
-        1.8712202310562134,
-        2.393277406692505
-      ]
+      "video_sha256": "62741bab37ff9764c4675c037edad59f423e05d015e4c4ecfc25197f589b0d42"
     }
   },
-  "hover_sampled_minimum_sole_clearance_mm": 4.844821005341911,
-  "media": "M-TQAE8N"
+  "demo_crest_peak_mm": {
+    "start_mean": 7.03,
+    "released_mean": 4.91,
+    "sample_profiles": 6
+  }
 }

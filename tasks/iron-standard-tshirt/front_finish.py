@@ -17,7 +17,8 @@ HOLD_CONTROLS = 20
 
 
 class FrontFinish:
-    def __init__(self, rest, front_faces):
+    def __init__(self, rest, front_faces, *, pass_based=False):
+        self.pass_based = pass_based
         self.rest = rest
         self.faces = front_faces
         front = np.unique(front_faces)
@@ -29,6 +30,9 @@ class FrontFinish:
             if len(row) != 17:
                 raise ValueError('Finish bridge does not match the refined front mesh')
             self.rows.append(row)
+        landmarks = ((0., -.25), (0., .25), (.57, -.37), (.57, .37), (.62, 0.))
+        self.landmarks = [front[np.linalg.norm(rest[front, :2]-xy, axis=1).argmin()]
+                          for xy in landmarks]
         self.history = deque(maxlen=HOLD_CONTROLS)
         self.step = None
         self.last = None
@@ -54,6 +58,8 @@ class FrontFinish:
             raise ValueError('Invalid native endpoint measurement')
         gaps, chords = self.gaps(points)
         passed = (gaps <= GAP_MM) & (chords >= 36.) & (chords <= 44.)
+        if self.pass_based:
+            passed = coverage["pressed_stations"].copy()
         rotation = _rotation(iron_orientation)
         hand_clearance = []
         for tcp in tcp_m.values():
@@ -72,16 +78,17 @@ class FrontFinish:
         parked = (rest_metrics['iron_rest_xy_clearance_mm'] >= 0.
                   and -1. <= rest_metrics['iron_rest_lowest_gap_mm'] <= 2.
                   and rest_metrics['iron_rest_tilt_deg'] <= 5.)
-        used = coverage.get('front_loaded_crease_coverage', 0.) >= .5
+        used = bool(passed.any()) if self.pass_based else coverage.get('front_loaded_crease_coverage', 0.) >= .5
         eligible = spread and parked and min(hand_clearance) >= .08 and used
-        self.history.append((points.copy(), np.asarray(iron_position).copy(), rotation, passed, eligible))
+        self.history.append(((points[self.landmarks] if self.pass_based else points).copy(), np.asarray(iron_position).copy(), rotation, passed, eligible))
         motion_mm = 0.
         iron_motion_mm = 0.
         iron_motion_deg = 0.
         score = 0.
         if len(self.history) == HOLD_CONTROLS:
             first = self.history[0]
-            motion_mm = float(max(np.percentile(np.linalg.norm(row[0]-first[0], axis=1), 95)
+            motion = np.max if self.pass_based else lambda values: np.percentile(values, 95)
+            motion_mm = float(max(motion(np.linalg.norm(row[0]-first[0], axis=1))
                                   for row in self.history)*1000.)
             iron_motion_mm = float(max(np.linalg.norm(row[1]-first[1]) for row in self.history)*1000.)
             iron_motion_deg = float(max(np.degrees(np.arccos(np.clip(

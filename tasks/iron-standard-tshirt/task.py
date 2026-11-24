@@ -1,6 +1,4 @@
-"""Press the right half of the front crease flat. Leave the shirt spread out,
-release it and return the iron fully to its rest. This is cold mechanical pressing.
-"""
+"""Iron the marked front strip and return the iron to its rest."""
 
 import os
 from pathlib import Path
@@ -17,7 +15,7 @@ from .coverage_tracker import CoverageTracker
 from .front_finish import FrontFinish
 from .pressing_table import PRESS_HEIGHT, drape_front_lip, pressing_table_shapes
 from .short_board import SHORT_BOARD_HEIGHT, drape_on_short_board, short_board_shapes
-from .soleplate import OUTLINE, measure_rest
+from .soleplate import OUTLINE, _inside_soleplate, _rotation, measure_rest
 
 
 CONDITIONS = ("recoverable", "diagonal_probe", "diagonal_refined", "diagonal_contact",
@@ -33,7 +31,7 @@ def box(half_extents, position, color, friction=(0.6, 0.5)):
     return dict(type="box", size=half_extents, position=position, color=(*color, 1.), friction=friction)
 
 
-def iron_description():
+def iron_description(powered=False):
     # Rounded heel and tapered toe, pointing forward along +X. Sole bottom is z=0.
     def hull(scale, bottom, top, color, friction):
         n = len(OUTLINE)
@@ -51,6 +49,8 @@ def iron_description():
               box((.012, .023, .032), (-.083, 0., .063), blue),
               box((.014, .021, .026), (.068, 0., .061), blue),
               box((.086, .014, .014), (-.006, 0., .100), blue, (.85, .7))]
+    if powered:
+        shapes.append(dict(box((.009, .006, .001), (-.070, .036, .039), (.95, .27, .03)), collision=False))
     return dict(name="iron", bodies=[dict(name="iron", mass=1., center_of_mass=(0., 0., .024),
                 inertia=dict(diagonal=(.0015, .0065, .0068)), shapes=shapes)])
 
@@ -61,7 +61,8 @@ class IronShirt:
     robot_contact_offset = .0005
 
     def __init__(self, condition):
-        if condition == 'recoverable':
+        self.powered = condition == 'recoverable'
+        if self.powered:
             condition = 'settled_buckle'
         self.raised_board = condition in ('raised_board', 'turnover')
         self.short_board = condition in ('short_turnover', 'settled_short_turnover')
@@ -145,6 +146,8 @@ class IronShirt:
 
         def finger_pad_setup(env, env_ids):
             self.configure_finger_pads(env, env_ids)
+            if self.powered:
+                self.create_power_cord()
 
         class SurfaceShirt(Asset):
             def get_object_cfg(self):
@@ -171,9 +174,43 @@ class IronShirt:
         return [Object(name="ironing_mat", object_type=ObjectType.BASE,
                        usd_path=str(create_asset(surface, root / "support.usda"))),
                 Object(name="iron", object_type=ObjectType.RIGID,
-                       usd_path=str(create_asset(iron_description(), root / "iron.usda")),
+                       usd_path=str(create_asset(iron_description(self.powered), root / "iron.usda")),
                        initial_pose=Pose(position_xyz=REST)),
                 SurfaceShirt("shirt", tags=["surface-deformable", "cotton"])]
+
+    def create_power_cord(self):
+        from isaaclab.sim.utils.stage import get_current_stage
+        from pxr import Gf, UsdGeom, UsdLux
+
+        stage = get_current_stage()
+        # A fixed low light lets the same camera reveal the ridge before and after.
+        light = UsdLux.SphereLight.Define(stage, "/World/IroningGrazingLight")
+        light.CreateIntensityAttr(350.)
+        light.CreateRadiusAttr(.05)
+        UsdGeom.Xformable(light).AddTranslateOp().Set(Gf.Vec3d(.78, .32, TABLE_TOP+.15))
+        outlet = UsdGeom.Cube.Define(stage, "/World/IronOutlet")
+        outlet.CreateSizeAttr(1.)
+        outlet.AddTranslateOp().Set(Gf.Vec3d(.54, -.633, TABLE_TOP+.018))
+        outlet.AddScaleOp().Set(Gf.Vec3d(.075, .030, .036))
+        outlet.CreateDisplayColorAttr([(0.25, 0.25, 0.25)])
+        self.cord = UsdGeom.BasisCurves.Define(stage, "/World/IronPowerCord")
+        self.cord.CreateTypeAttr("linear")
+        self.cord.CreateCurveVertexCountsAttr([25])
+        self.cord.CreateWidthsAttr([.007])
+        self.cord.SetWidthsInterpolation("constant")
+        self.cord.CreateDisplayColorAttr([(0.035, 0.035, 0.035)])
+        self.update_power_cord(np.array(REST), np.array([0., 0., 0., 1.]))
+
+    def update_power_cord(self, position, orientation):
+        from pxr import Vt
+
+        heel = position + _rotation(orientation) @ [-.110, 0., .032]
+        bend = heel + _rotation(orientation) @ [-.07, 0., .005]
+        guide = np.array([.12, -.618, TABLE_TOP+.010])
+        plug = np.array([.505, -.633, TABLE_TOP+.026])
+        t = np.linspace(0., 1., 25)[:, None]
+        points = (1-t)**3*heel + 3*(1-t)**2*t*bend + 3*(1-t)*t*t*guide + t**3*plug
+        self.cord.GetPointsAttr().Set(Vt.Vec3fArray.FromNumpy(points.astype(np.float32)))
 
     def configure_finger_pads(self, env, env_ids):
         from pxr import Usd, UsdPhysics, UsdShade
@@ -226,7 +263,9 @@ class IronShirt:
         from yam_arena.constants import FINGER_JOINTS
 
         self.coverage = CoverageTracker(self.rest, (self.faces[:self.n_face], self.faces[self.n_face:2*self.n_face]))
-        self.finish = FrontFinish(self.rest, self.faces[:self.n_face])
+        self.finish = FrontFinish(self.rest, self.faces[:self.n_face], pass_based=self.powered)
+        self.pressed = np.zeros(5, dtype=bool)
+        self.contact_frames = np.zeros(5, dtype=int)
         self._coverage_step = -1
         self._coverage_arms = {}
         for side in ('left', 'right'):
@@ -303,7 +342,21 @@ class IronShirt:
         rotation = orientation.detach().cpu().numpy()
         rest = measure_rest(position, rotation, REST, REST_HALF_XY)
         coverage = {}
-        if self.coverage is not None:
+        step = int(base.common_step_counter)
+        if self.powered:
+            if self._coverage_step != step:
+                self.update_power_cord(position, rotation)
+                stations = np.asarray(self.finish.rows)[:, 8]
+                local = (points[stations]-position) @ _rotation(rotation)
+                front_exposed = points[stations, 2] > points[stations+len(points)//2, 2]
+                covered = (_inside_soleplate(local[:, :2]) & front_exposed
+                           & (-.0015 <= local[:, 2]) & (local[:, 2] <= .0005)
+                           & (_rotation(rotation)[2, 2] >= np.cos(np.deg2rad(5))))
+                self.contact_frames = np.where(covered, self.contact_frames+1, 0)
+                self.pressed |= self.contact_frames >= 3
+                self._coverage_step = step
+            coverage = {'pressed_stations': self.pressed}
+        elif self.coverage is not None:
             self.observe_coverage(base, points, position, rotation)
             coverage = self.coverage.diagnostics()
         geometry = self.geometry(points)
@@ -313,6 +366,7 @@ class IronShirt:
                 coverage=coverage, rest_metrics=rest,
                 tcp_m={side: np.asarray(tcp_world(arm)) for side, (arm, _, _) in self._coverage_arms.items()},
                 iron_position=position, iron_orientation=rotation)
+        coverage.pop("pressed_stations", None)
         return dict(**finish, **geometry,
                     cloth_speed_p95_m_s=float(np.percentile(np.linalg.norm(speed, axis=1), 95)),
                     iron_park_error_m=float(np.linalg.norm(position - REST)), **rest, **coverage)

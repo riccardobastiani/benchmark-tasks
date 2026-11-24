@@ -1,6 +1,6 @@
 {
-  "instruction": "Use the iron to press the right half of the front crease flat. Leave the shirt spread out and released, with the iron fully on its rest.",
-  "max_steps": 1600,
+  "instruction": "Iron the marked right half of the front of the T-shirt. Leave the shirt spread out and released, and return the iron to its rest.",
+  "max_steps": 1800,
   "control_hz": 20,
   "seed": 0
 }
